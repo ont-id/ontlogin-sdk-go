@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2021 The ontology Authors
+ * This file is part of The ontology library.
+ *
+ * The ontology is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The ontology is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package sdk
 
 import (
@@ -28,9 +45,13 @@ type OntLoginSdk struct {
 	checkNonceExistFunc func(string) error
 }
 
-func NewOntLoginSdk() (*OntLoginSdk, error) {
-	//todo implement me
-	return &OntLoginSdk{}, nil
+func NewOntLoginSdk(conf *SDKConfig, resolvers map[string]did.DidResolver, nonceFunc func() string, checkNonceFunc func(string) error) (*OntLoginSdk, error) {
+	return &OntLoginSdk{
+		didResolvers:        resolvers,
+		conf:                conf,
+		genRandomNonceFunc:  nonceFunc,
+		checkNonceExistFunc: checkNonceFunc,
+	}, nil
 }
 
 func (s *OntLoginSdk) GetDIDChain(did string) (string, error) {
@@ -66,10 +87,10 @@ func (s *OntLoginSdk) GenerateChallenge(req *modules.ClientHello) (*modules.Serv
 	return res, nil
 }
 
-func (s *OntLoginSdk)GetCredentailJson(chain ,presentation string)([]string,error){
-	resolver,ok := s.didResolvers[chain]
-	if !ok{
-		return nil,fmt.Errorf("chain not supported")
+func (s *OntLoginSdk) GetCredentailJson(chain, presentation string) ([]string, error) {
+	resolver, ok := s.didResolvers[chain]
+	if !ok {
+		return nil, fmt.Errorf("chain not supported")
 	}
 
 	return resolver.GetCredentialJsons(presentation)
@@ -124,8 +145,8 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	if res.VPs != nil && len(res.VPs) > 0 {
 
 		requiredTypes := s.getRequiredVcTypes()
-		for _,vp := range res.VPs{
-			if err = resolver.VerifyPresentation(did,index,vp,s.conf.trustedDIDs,requiredTypes);err != nil{
+		for _, vp := range res.VPs {
+			if err = resolver.VerifyPresentation(did, index, vp, s.conf.trustedDIDs, requiredTypes); err != nil {
 				return err
 			}
 		}
@@ -134,20 +155,35 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 }
 
 func (s *OntLoginSdk) validateClientHello(req *modules.ClientHello) error {
-	//todo implement me
+
+	if !strings.EqualFold(req.Ver , modules.SYS_VER){
+		return fmt.Errorf(modules.ERR_WRONG_VERSION)
+	}
+	if !strings.EqualFold(req.Type, modules.TYPE_CLIENT_HELLO){
+		return fmt.Errorf(modules.ERR_TYPE_NOT_SUPPORTED)
+	}
+	if !strings.EqualFold(req.Action,"0") && !strings.EqualFold(req.Action,"1"){
+		return fmt.Errorf(modules.ERR_ACTION_NOT_SUPPORTED)
+	}
+
 	return nil
 }
 
 func (s *OntLoginSdk) validateClientResponse(response *modules.ClientResponse) error {
-	//todo implement me
+	if !strings.EqualFold(response.Ver , modules.SYS_VER){
+		return fmt.Errorf(modules.ERR_WRONG_VERSION)
+	}
+	if !strings.EqualFold(response.Type, modules.TYPE_CLIENT_RESPONSE){
+		return fmt.Errorf(modules.ERR_TYPE_NOT_SUPPORTED)
+	}
 	return nil
 }
 
-func (s *OntLoginSdk) getRequiredVcTypes()[]string{
-	res := make([]string,0)
-	for _,vcf:=range s.conf.vcfilters{
-		if vcf.Required{
-			res = append(res,vcf.Type)
+func (s *OntLoginSdk) getRequiredVcTypes() []string {
+	res := make([]string, 0)
+	for _, vcf := range s.conf.vcfilters {
+		if vcf.Required {
+			res = append(res, vcf.Type)
 		}
 	}
 	return res

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2021 The ontology Authors
+ * This file is part of The ontology library.
+ *
+ * The ontology is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The ontology is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ont
 
 import (
@@ -160,24 +178,23 @@ func (o *OntResolver) getDIDPubkey(did string, index int) (*keypair.PublicKey, e
 	return &pubkey, nil
 }
 
-func (o *OntResolver)GetCredentialJsons(presentation string)([]string,error){
-	vp,err := o.sdk.Credential.JWTPresentation2Json(presentation)
-	if err != nil{
-		return nil,err
+func (o *OntResolver) GetCredentialJsons(presentation string) ([]string, error) {
+	vp, err := o.sdk.Credential.JWTPresentation2Json(presentation)
+	if err != nil {
+		return nil, err
 	}
 
-	creds:=make([]string,0)
-	for _,vc :=range vp.VerifiableCredential{
-		credjson,err := o.sdk.Credential.JsonCred2JWT(vc)
-		if err != nil{
-			return nil,err
+	creds := make([]string, 0)
+	for _, vc := range vp.VerifiableCredential {
+		credjson, err := o.sdk.Credential.JsonCred2JWT(vc)
+		if err != nil {
+			return nil, err
 		}
-		creds = append(creds,credjson)
+		creds = append(creds, credjson)
 	}
 
-	return creds,nil
+	return creds, nil
 }
-
 
 func NewOntResolver(doubleDirection bool, endpointURL string, didContractAddr string, walletFile string, password string) (*OntResolver, error) {
 
