@@ -24,16 +24,16 @@ import (
 	"strconv"
 	"strings"
 
-	"ontlogin-sdk-go/did"
-	"ontlogin-sdk-go/modules"
+	"github.com/ontlogin-sdk-go/did"
+	"github.com/ontlogin-sdk-go/modules"
 )
 
 type SDKConfig struct {
-	chain       []string
-	alg         []string
-	serverInfo  *modules.ServerInfo
-	vcfilters   []*modules.VCFilter
-	trustedDIDs []string
+	Chain       []string
+	Alg         []string
+	ServerInfo  *modules.ServerInfo
+	Vcfilters   []*modules.VCFilter
+	TrustedDIDs []string
 }
 
 type OntLoginSdk struct {
@@ -75,12 +75,12 @@ func (s *OntLoginSdk) GenerateChallenge(req *modules.ClientHello) (*modules.Serv
 	res.Ver = modules.SYS_VER
 	res.Type = modules.TYPE_SERVER_HELLO
 	res.Nonce = uuid
-	res.Server = s.conf.serverInfo
-	res.Chain = s.conf.chain
-	res.Alg = s.conf.alg
+	res.Server = s.conf.ServerInfo
+	res.Chain = s.conf.Chain
+	res.Alg = s.conf.Alg
 
 	if req.Action == modules.ACTION_REGISTER {
-		res.VCFilters = s.conf.vcfilters
+		res.VCFilters = s.conf.Vcfilters
 	}
 	//serverproof
 	//extension
@@ -117,9 +117,9 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	msg := &modules.ClientResponseMsg{
 		Type: res.Type,
 		Server: modules.ServerInfoToSign{
-			Name: s.conf.serverInfo.Name,
-			Url:  s.conf.serverInfo.Url,
-			Did:  s.conf.serverInfo.Did,
+			Name: s.conf.ServerInfo.Name,
+			Url:  s.conf.ServerInfo.Url,
+			Did:  s.conf.ServerInfo.Did,
 		},
 		Did:     did,
 		Created: res.Proof.Created,
@@ -146,7 +146,7 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 
 		requiredTypes := s.getRequiredVcTypes()
 		for _, vp := range res.VPs {
-			if err = resolver.VerifyPresentation(did, index, vp, s.conf.trustedDIDs, requiredTypes); err != nil {
+			if err = resolver.VerifyPresentation(did, index, vp, s.conf.TrustedDIDs, requiredTypes); err != nil {
 				return err
 			}
 		}
@@ -181,7 +181,7 @@ func (s *OntLoginSdk) validateClientResponse(response *modules.ClientResponse) e
 
 func (s *OntLoginSdk) getRequiredVcTypes() []string {
 	res := make([]string, 0)
-	for _, vcf := range s.conf.vcfilters {
+	for _, vcf := range s.conf.Vcfilters {
 		if vcf.Required {
 			res = append(res, vcf.Type)
 		}
