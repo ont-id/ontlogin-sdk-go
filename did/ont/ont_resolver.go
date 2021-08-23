@@ -149,7 +149,7 @@ func (o *OntResolver) VerifyCredential(did string, index int, credential string,
 	return nil
 }
 
-func (o *OntResolver) getDIDPubkey(did string, index int) (*keypair.PublicKey, error) {
+func (o *OntResolver) getDIDPubkey(did string, index int) (keypair.PublicKey, error) {
 
 	if o.sdk.Native == nil || o.sdk.Native.OntId == nil {
 		return nil, fmt.Errorf("ontsdk is nil")
@@ -171,11 +171,11 @@ func (o *OntResolver) getDIDPubkey(did string, index int) (*keypair.PublicKey, e
 	if err != nil {
 		return nil, err
 	}
-	pubkey, err := keypair.DeserializePublicKey(pk)
+	newpubkey, err := keypair.DeserializePublicKey(pk)
 	if err != nil {
 		return nil, err
 	}
-	return &pubkey, nil
+	return newpubkey, nil
 }
 
 func (o *OntResolver) GetCredentialJsons(presentation string) ([]string, error) {

@@ -28,8 +28,8 @@ var (
 	ACTION_REGISTER = "0"
 	ACTION_LOGIN    = "1"
 
-	SYS_VER           = "1.0"
-	TYPE_CLIENT_HELLO = "ClientHello"
-	TYPE_SERVER_HELLO = "ServerHello"
+	SYS_VER              = "1.0"
+	TYPE_CLIENT_HELLO    = "ClientHello"
+	TYPE_SERVER_HELLO    = "ServerHello"
 	TYPE_CLIENT_RESPONSE = "ClientResponse"
 )

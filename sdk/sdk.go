@@ -21,11 +21,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"strconv"
-	"strings"
-
 	"github.com/ontlogin-sdk-go/did"
 	"github.com/ontlogin-sdk-go/modules"
+	//"ontlogin-sdk-go/did"
+	//"ontlogin-sdk-go/modules"
+	"strconv"
+	"strings"
 )
 
 type SDKConfig struct {
@@ -111,7 +112,7 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	if err != nil {
 		return err
 	}
-	if err = s.checkNonceExistFunc(res.Proof.Nonce); err != nil {
+	if err = s.checkNonceExistFunc(res.Nonce); err != nil {
 		return fmt.Errorf("nonce is existed on server side")
 	}
 	msg := &modules.ClientResponseMsg{
@@ -121,6 +122,7 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 			Url:  s.conf.ServerInfo.Url,
 			Did:  s.conf.ServerInfo.Did,
 		},
+		Nonce:   res.Nonce,
 		Did:     did,
 		Created: res.Proof.Created,
 	}
@@ -156,13 +158,13 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 
 func (s *OntLoginSdk) validateClientHello(req *modules.ClientHello) error {
 
-	if !strings.EqualFold(req.Ver , modules.SYS_VER){
+	if !strings.EqualFold(req.Ver, modules.SYS_VER) {
 		return fmt.Errorf(modules.ERR_WRONG_VERSION)
 	}
-	if !strings.EqualFold(req.Type, modules.TYPE_CLIENT_HELLO){
+	if !strings.EqualFold(req.Type, modules.TYPE_CLIENT_HELLO) {
 		return fmt.Errorf(modules.ERR_TYPE_NOT_SUPPORTED)
 	}
-	if !strings.EqualFold(req.Action,"0") && !strings.EqualFold(req.Action,"1"){
+	if !strings.EqualFold(req.Action, "0") && !strings.EqualFold(req.Action, "1") {
 		return fmt.Errorf(modules.ERR_ACTION_NOT_SUPPORTED)
 	}
 
@@ -170,10 +172,10 @@ func (s *OntLoginSdk) validateClientHello(req *modules.ClientHello) error {
 }
 
 func (s *OntLoginSdk) validateClientResponse(response *modules.ClientResponse) error {
-	if !strings.EqualFold(response.Ver , modules.SYS_VER){
+	if !strings.EqualFold(response.Ver, modules.SYS_VER) {
 		return fmt.Errorf(modules.ERR_WRONG_VERSION)
 	}
-	if !strings.EqualFold(response.Type, modules.TYPE_CLIENT_RESPONSE){
+	if !strings.EqualFold(response.Type, modules.TYPE_CLIENT_RESPONSE) {
 		return fmt.Errorf(modules.ERR_TYPE_NOT_SUPPORTED)
 	}
 	return nil

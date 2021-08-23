@@ -64,6 +64,7 @@ type ClientResponse struct {
 	Ver   string   `json:"ver"`
 	Type  string   `json:"type"`
 	Did   string   `json:"did"`
+	Nonce string   `json:"nonce"`
 	Proof *Proof   `json:"proof"`
 	VPs   []string `json:"VPs"`
 }
@@ -72,14 +73,13 @@ type Proof struct {
 	Type               string `json:"type"`
 	VerificationMethod string `json:"verificationMethod"`
 	Created            string `json:"created"`
-	Nonce              string `json:"nonce"`
 	Value              string `json:"value"`
 }
 
 type ClientResponseMsg struct {
 	Type    string           `json:"type"`
 	Server  ServerInfoToSign `json:"server"`
-	nonce   string           `json:"nonce"`
+	Nonce   string           `json:"nonce"`
 	Did     string           `json:"did"`
 	Created string           `json:"created"`
 }
