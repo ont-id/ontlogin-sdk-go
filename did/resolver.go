@@ -17,7 +17,7 @@
  */
 package did
 
-import "github.com/ontlogin-sdk-go/modules"
+import "github.com/ontology-tech/ontlogin-sdk-go/modules"
 
 type DidResolver interface {
 	//GetPubkeyString(did string ,index int)(string,error)
