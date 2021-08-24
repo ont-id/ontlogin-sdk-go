@@ -1,4 +1,4 @@
-module ontlogin-sdk-go
+module github.com/ontology-tech/ontlogin-sdk-go
 
 go 1.15
 

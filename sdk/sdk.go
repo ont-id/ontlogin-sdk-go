@@ -21,10 +21,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/ontlogin-sdk-go/did"
-	"github.com/ontlogin-sdk-go/modules"
-	//"ontlogin-sdk-go/did"
-	//"ontlogin-sdk-go/modules"
+	"github.com/ontology-tech/ontlogin-sdk-go/did"
+	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 	"strconv"
 	"strings"
 )
