@@ -28,11 +28,10 @@ import (
 )
 
 type SDKConfig struct {
-	Chain       []string
-	Alg         []string
-	ServerInfo  *modules.ServerInfo
-	Vcfilters   []*modules.VCFilter
-	TrustedDIDs []string
+	Chain      []string
+	Alg        []string
+	ServerInfo *modules.ServerInfo
+	VCFilters  map[string][]*modules.VCFilter
 }
 
 type OntLoginSdk struct {
@@ -78,9 +77,9 @@ func (s *OntLoginSdk) GenerateChallenge(req *modules.ClientHello) (*modules.Serv
 	res.Chain = s.conf.Chain
 	res.Alg = s.conf.Alg
 
-	if req.Action == modules.ACTION_REGISTER {
-		res.VCFilters = s.conf.Vcfilters
-	}
+	//if req.Action == modules.ACTION_REGISTER {
+	res.VCFilters = s.conf.VCFilters[modules.ACTION_REGISTER]
+	//}
 	//serverproof
 	//extension
 	return res, nil
@@ -144,9 +143,9 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	//verify presentation
 	if res.VPs != nil && len(res.VPs) > 0 {
 
-		requiredTypes := s.getRequiredVcTypes()
+		requiredTypes := s.conf.VCFilters[res.Type]
 		for _, vp := range res.VPs {
-			if err = resolver.VerifyPresentation(did, index, vp, s.conf.TrustedDIDs, requiredTypes); err != nil {
+			if err = resolver.VerifyPresentation(did, index, vp, requiredTypes); err != nil {
 				return err
 			}
 		}
@@ -179,15 +178,15 @@ func (s *OntLoginSdk) validateClientResponse(response *modules.ClientResponse) e
 	return nil
 }
 
-func (s *OntLoginSdk) getRequiredVcTypes() []string {
-	res := make([]string, 0)
-	for _, vcf := range s.conf.Vcfilters {
-		if vcf.Required {
-			res = append(res, vcf.Type)
-		}
-	}
-	return res
-}
+//func (s *OntLoginSdk) getRequiredVcTypes(actionType string) []*modules.VCFilter {
+//	res := make([]string, 0)
+//	for _, vcf := range s.conf.Vcfilters {
+//		if vcf.Required {
+//			res = append(res, vcf.Type)
+//		}
+//	}
+//	return res
+//}
 
 func getDIDKeyAndIndex(verifymethod string) (string, int, error) {
 	tmpArr := strings.Split(verifymethod, "#")

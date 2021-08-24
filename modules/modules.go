@@ -49,9 +49,10 @@ type ServerInfo struct {
 }
 
 type VCFilter struct {
-	Type     string `json:"type"`
-	Express  string `json:"express,omitempty"`
-	Required bool   `json:"required"`
+	Type       string   `json:"type"`
+	Express    string   `json:"express,omitempty"`
+	TrustRoots []string `json:"trust_roots"`
+	Required   bool     `json:"required"`
 }
 
 type ServerProof struct {

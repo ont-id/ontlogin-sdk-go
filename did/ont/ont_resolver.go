@@ -22,6 +22,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 	"strings"
 
 	"github.com/ontio/ontology-crypto/keypair"
@@ -29,6 +30,8 @@ import (
 	oacct "github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/core/signature"
+
+	"github.com/ontology-tech/ontlogin-sdk-go/utils"
 )
 
 type DidPubkey struct {
@@ -65,7 +68,7 @@ func (o *OntResolver) Sign(did string, index int, msg []byte) ([]byte, error) {
 	return signature.Sign(singer, msg)
 }
 
-func (o *OntResolver) VerifyPresentation(did string, index int, presentation string, trustedDIDs []string, requiredTypes []string) error {
+func (o *OntResolver) VerifyPresentation(did string, index int, presentation string, requiredTypes []*modules.VCFilter) error {
 	//1. verify singer
 	err := o.sdk.Credential.VerifyJWTIssuerSignature(presentation)
 	if err != nil {
@@ -91,7 +94,7 @@ func (o *OntResolver) VerifyPresentation(did string, index int, presentation str
 		if err != nil {
 			return fmt.Errorf("JsonCred2JWT failed:%s", err.Error())
 		}
-		err = o.VerifyCredential(did, index, c, trustedDIDs)
+		err = o.VerifyCredential(did, index, c, utils.GetTrustRoot(cred.Type, requiredTypes))
 		if err != nil {
 			return err
 		}
@@ -99,9 +102,12 @@ func (o *OntResolver) VerifyPresentation(did string, index int, presentation str
 	}
 	if requiredTypes != nil {
 		for _, required := range requiredTypes {
+			if !required.Required {
+				continue
+			}
 			f := false
 			for _, ctype := range credTypes {
-				if strings.EqualFold(ctype, required) {
+				if strings.EqualFold(ctype, required.Type) {
 					f = true
 					break
 				}
@@ -111,7 +117,6 @@ func (o *OntResolver) VerifyPresentation(did string, index int, presentation str
 			}
 		}
 	}
-
 	return nil
 }
 
