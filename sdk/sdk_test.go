@@ -1,9 +1,9 @@
 package sdk
 
 import (
-	"ontlogin-sdk-go/did"
-	"ontlogin-sdk-go/did/ont"
-	"ontlogin-sdk-go/modules"
+	"github.com/ontology-tech/ontlogin-sdk-go/did"
+	"github.com/ontology-tech/ontlogin-sdk-go/did/ont"
+	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,9 +49,4 @@ func TestOntLoginSdk_GetDIDChain(t *testing.T) {
 	chain, err := olsdk.GetDIDChain("did:ont:testdid")
 	assert.Nil(t, err)
 	assert.Equal(t, chain, "ont")
-}
-
-func TestOntLoginSdk_GenerateChallenge(t *testing.T) {
-	olsdk := initTestEnv()
-	olsdk.GenerateChallenge()
 }
