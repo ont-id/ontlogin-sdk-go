@@ -8,7 +8,23 @@
 
 ## 2. 在项目中集成ontlogin sdk
 
-### 2.1 golang
+在项目中集成ontlogin sdk
+
+只需要一下步骤：
+
+1. 初始化sdk
+
+2. 新增2个api:  
+
+   1. requestChallenge: 用于请求服务的的挑战内容
+
+   2. submitChallenge:提交对挑战内容的签名，以及服务端要求的VP（如果有）
+
+      
+
+3. 根据业务需求，映射DID和既有的用户ID，解析并保存VP中的数据。
+
+### 2.1 集成的详细流程
 
 ontlong-sdk-go : https://github.com/ontology-tech/ontlogin-sdk-go
 
