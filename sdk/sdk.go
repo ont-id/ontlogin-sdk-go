@@ -43,9 +43,9 @@ type OntLoginSdk struct {
 	checkNonceExistFunc func(string) error
 }
 
-func NewOntLoginSdk(conf *SDKConfig, resolvers map[string]did.DidProcessor, nonceFunc func() string, checkNonceFunc func(string) error) (*OntLoginSdk, error) {
+func NewOntLoginSdk(conf *SDKConfig, processors map[string]did.DidProcessor, nonceFunc func() string, checkNonceFunc func(string) error) (*OntLoginSdk, error) {
 	return &OntLoginSdk{
-		didProcessors:       resolvers,
+		didProcessors:       processors,
 		conf:                conf,
 		genRandomNonceFunc:  nonceFunc,
 		checkNonceExistFunc: checkNonceFunc,
@@ -86,12 +86,12 @@ func (s *OntLoginSdk) GenerateChallenge(req *modules.ClientHello) (*modules.Serv
 }
 
 func (s *OntLoginSdk) GetCredentailJson(chain, presentation string) ([]string, error) {
-	resolver, ok := s.didProcessors[chain]
+	processor, ok := s.didProcessors[chain]
 	if !ok {
 		return nil, fmt.Errorf("chain not supported")
 	}
 
-	return resolver.GetCredentialJsons(presentation)
+	return processor.GetCredentialJsons(presentation)
 }
 
 func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error {
@@ -132,11 +132,11 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	if err != nil {
 		return fmt.Errorf("marshal message failed:%s", err.Error())
 	}
-	resolver, ok := s.didProcessors[chain]
+	processor, ok := s.didProcessors[chain]
 	if !ok {
 		return fmt.Errorf("not a support did chain:%s", chain)
 	}
-	if err = resolver.VerifySig(did, index, dataToSign, sigdata); err != nil {
+	if err = processor.VerifySig(did, index, dataToSign, sigdata); err != nil {
 		return err
 	}
 
@@ -145,7 +145,7 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 
 		requiredTypes := s.conf.VCFilters[res.Type]
 		for _, vp := range res.VPs {
-			if err = resolver.VerifyPresentation(did, index, vp, requiredTypes); err != nil {
+			if err = processor.VerifyPresentation(did, index, vp, requiredTypes); err != nil {
 				return err
 			}
 		}

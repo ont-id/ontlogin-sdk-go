@@ -201,7 +201,7 @@ func (o *OntProcessor) GetCredentialJsons(presentation string) ([]string, error)
 	return creds, nil
 }
 
-func NewOntResolver(doubleDirection bool, endpointURL string, didContractAddr string, walletFile string, password string) (*OntProcessor, error) {
+func NewOntProcessor(doubleDirection bool, endpointURL string, didContractAddr string, walletFile string, password string) (*OntProcessor, error) {
 
 	sdk := ontology_go_sdk.NewOntologySdk()
 	sdk.NewRpcClient().SetAddress(endpointURL)
