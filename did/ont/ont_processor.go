@@ -41,13 +41,13 @@ type DidPubkey struct {
 	PublicKeyHex string      `json:"publicKeyHex"`
 }
 
-type OntResolver struct {
+type OntProcessor struct {
 	sdk                     *ontology_go_sdk.OntologySdk
 	acct                    *ontology_go_sdk.Account
 	isDoubleDirectionVerify bool
 }
 
-func (o *OntResolver) VerifySig(did string, index int, msg []byte, sig []byte) error {
+func (o *OntProcessor) VerifySig(did string, index int, msg []byte, sig []byte) error {
 
 	pubkey, err := o.getDIDPubkey(did, index)
 	if err != nil {
@@ -56,7 +56,7 @@ func (o *OntResolver) VerifySig(did string, index int, msg []byte, sig []byte) e
 	return signature.Verify(pubkey, msg, sig)
 }
 
-func (o *OntResolver) Sign(did string, index int, msg []byte) ([]byte, error) {
+func (o *OntProcessor) Sign(did string, index int, msg []byte) ([]byte, error) {
 
 	singer := &oacct.Account{
 		PrivateKey: o.acct.PrivateKey,
@@ -68,7 +68,7 @@ func (o *OntResolver) Sign(did string, index int, msg []byte) ([]byte, error) {
 	return signature.Sign(singer, msg)
 }
 
-func (o *OntResolver) VerifyPresentation(did string, index int, presentation string, requiredTypes []*modules.VCFilter) error {
+func (o *OntProcessor) VerifyPresentation(did string, index int, presentation string, requiredTypes []*modules.VCFilter) error {
 	//1. verify singer
 	err := o.sdk.Credential.VerifyJWTIssuerSignature(presentation)
 	if err != nil {
@@ -120,7 +120,7 @@ func (o *OntResolver) VerifyPresentation(did string, index int, presentation str
 	return nil
 }
 
-func (o *OntResolver) VerifyCredential(did string, index int, credential string, trustedDIDs []string) error {
+func (o *OntProcessor) VerifyCredential(did string, index int, credential string, trustedDIDs []string) error {
 	//1. verify signer
 	err := o.sdk.Credential.VerifyJWTIssuerSignature(credential)
 	if err != nil {
@@ -154,7 +154,7 @@ func (o *OntResolver) VerifyCredential(did string, index int, credential string,
 	return nil
 }
 
-func (o *OntResolver) getDIDPubkey(did string, index int) (keypair.PublicKey, error) {
+func (o *OntProcessor) getDIDPubkey(did string, index int) (keypair.PublicKey, error) {
 
 	if o.sdk.Native == nil || o.sdk.Native.OntId == nil {
 		return nil, fmt.Errorf("ontsdk is nil")
@@ -183,7 +183,7 @@ func (o *OntResolver) getDIDPubkey(did string, index int) (keypair.PublicKey, er
 	return newpubkey, nil
 }
 
-func (o *OntResolver) GetCredentialJsons(presentation string) ([]string, error) {
+func (o *OntProcessor) GetCredentialJsons(presentation string) ([]string, error) {
 	vp, err := o.sdk.Credential.JWTPresentation2Json(presentation)
 	if err != nil {
 		return nil, err
@@ -201,12 +201,12 @@ func (o *OntResolver) GetCredentialJsons(presentation string) ([]string, error) 
 	return creds, nil
 }
 
-func NewOntResolver(doubleDirection bool, endpointURL string, didContractAddr string, walletFile string, password string) (*OntResolver, error) {
+func NewOntResolver(doubleDirection bool, endpointURL string, didContractAddr string, walletFile string, password string) (*OntProcessor, error) {
 
 	sdk := ontology_go_sdk.NewOntologySdk()
 	sdk.NewRpcClient().SetAddress(endpointURL)
 
-	res := &OntResolver{}
+	res := &OntProcessor{}
 	res.isDoubleDirectionVerify = doubleDirection
 	if doubleDirection {
 		if len(didContractAddr) == 0 {

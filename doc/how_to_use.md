@@ -175,13 +175,13 @@ func InitService() {
 		VCFilters: vcfilters,
 	}
 
-	resolvers := make(map[string]did.DidResolver)
-	ontresolver, err := ont.NewOntResolver(false, "http://polaris2.ont.io:20336", "52df370680de17bc5d4262c446f102a0ee0d6312", "./wallet.dat", "123456")
+	Processors := make(map[string]did.DidProcessor)
+	ontProcessor, err := ont.NewOntProcessor(false, "http://polaris2.ont.io:20336", "52df370680de17bc5d4262c446f102a0ee0d6312", "./wallet.dat", "123456")
 	if err != nil {
 		panic(err)
 	}
-	resolvers["ont"] = ontresolver
-	loginsdk, err = ontloginsdk.NewOntLoginSdk(conf, resolvers, GenUUID, CheckNonce)
+	Processors["ont"] = ontProcessor
+	loginsdk, err = ontloginsdk.NewOntLoginSdk(conf, Processors, GenUUID, CheckNonce)
 	if err != nil {
 		panic(err)
 	}
@@ -279,7 +279,7 @@ func InitService(){
 	}
     //sdk 需要的服务端配置信息，可以从配置文件等中读取
 	conf := &ontloginsdk.SDKConfig{
-		Chain:[]string{"ont"},         //支持的链的名称， 如eth, ont, bsc等， 需要实现对应resolver
+		Chain:[]string{"ont"},         //支持的链的名称， 如eth, ont, bsc等， 需要实现对应Processor
 		Alg:[]string{"ES256"},         //支持的签名算法 
 		ServerInfo:&modules.ServerInfo{                       //服务器的信息
 			Name:               "testServcer",                
@@ -293,7 +293,7 @@ func InitService(){
 		
 	}
 
-	resolvers := make(map[string]did.DidResolver)             //初始化链的resolver
+	Processors := make(map[string]did.DidProcessor)             //初始化链的Processor
     //以ontology 为例，参数说明
     //1. doubleDirection bool: 是否需要双向挑战认证
     //2. ontology 节点rpc的服务地址
@@ -301,15 +301,15 @@ func InitService(){
     //4. ontology的钱包地址，如果doubleDirection 为false,可以为空
     //5. 钱包密码，如果doubleDirection 为false,可以为空
     
-	ontresolver,err := ont.NewOntResolver(false,"http://polaris2.ont.io:20336","52df370680de17bc5d4262c446f102a0ee0d6312","./wallet.dat","123456")
+	ontProcessor,err := ont.NewOntProcessor(false,"http://polaris2.ont.io:20336","52df370680de17bc5d4262c446f102a0ee0d6312","./wallet.dat","123456")
 	if err != nil {
 		panic(err)
 	}
-	resolvers["ont"]=ontresolver
-    //除了config，和resolver,sdk 还需要传入两个函数
+	Processors["ont"]=ontProcessor
+    //除了config，和Processor,sdk 还需要传入两个函数
     //1. UUID 生成函数 func()string
     //2. 验证Nonce(UUID)是否存在与数据库/redis/缓存中的函数 func(string)error
-	loginsdk,err = ontloginsdk.NewOntLoginSdk(conf,resolvers,GenUUID,CheckNonce)
+	loginsdk,err = ontloginsdk.NewOntLoginSdk(conf,Processors,GenUUID,CheckNonce)
 	if err != nil {
 		panic(err)
 	}
