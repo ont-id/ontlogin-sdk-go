@@ -98,7 +98,7 @@ func (o *OntProcessor) VerifyPresentation(did string, index int, presentation st
 		if err != nil {
 			return err
 		}
-		credTypes = append(credTypes, credTypes...)
+		credTypes = append(credTypes, cred.Type...)
 	}
 	if requiredTypes != nil {
 		for _, required := range requiredTypes {
