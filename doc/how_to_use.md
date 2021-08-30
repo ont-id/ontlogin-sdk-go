@@ -95,7 +95,7 @@ func main() {
 service.InitService()
 ```
 
-初始化服务，保护对ontlogin sdk 的初始化，后面有详细的解释
+初始化服务，对ontlogin sdk 的初始化，后面有详细的解释
 
 
 
