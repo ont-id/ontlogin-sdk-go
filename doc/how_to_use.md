@@ -155,15 +155,16 @@ import (
 var loginsdk *ontloginsdk.OntLoginSdk
 var mapstore map[string]string
 
-func InitService() {
-	mapstore = make(map[string]string)
 
-	vcfilters := make(map[string][]*modules.VCFilter)
-	vcfilters[modules.ACTION_REGISTER] = []*modules.VCFilter{
-		{Type: "EmailCredential", Required: true, TrustRoots: []string{"did:ont:ssssss"}},
+func InitService() {
+	mapstore = make(map[string]int)
+
+	vcfilters := make(map[int][]*modules.VCFilter)
+	vcfilters[modules.ACTION_AUTHORIZATION] = []*modules.VCFilter{
+		{Type: "EmailCredential", Required: true, TrustRoots: []string{"did:ont:testdid"}},
 	}
 	conf := &ontloginsdk.SDKConfig{
-		Chain: []string{"ont"},
+		Chain: []string{"ONT"},
 		Alg:   []string{"ES256"},
 		ServerInfo: &modules.ServerInfo{
 			Name:               "testServcer",
@@ -175,17 +176,18 @@ func InitService() {
 		VCFilters: vcfilters,
 	}
 
-	Processors := make(map[string]did.DidProcessor)
-	ontProcessor, err := ont.NewOntProcessor(false, "http://polaris2.ont.io:20336", "52df370680de17bc5d4262c446f102a0ee0d6312", "./wallet.dat", "123456")
+	resolvers := make(map[string]did.DidProcessor)
+	ontresolver, err := ont.NewOntProcessor(false, "http://polaris2.ont.io:20336", "52df370680de17bc5d4262c446f102a0ee0d6312", "./wallet.dat", "123456")
 	if err != nil {
 		panic(err)
 	}
-	Processors["ont"] = ontProcessor
-	loginsdk, err = ontloginsdk.NewOntLoginSdk(conf, Processors, GenUUID, CheckNonce)
+	resolvers["ont"] = ontresolver
+	loginsdk, err = ontloginsdk.NewOntLoginSdk(conf, resolvers, GenUUID, CheckNonce)
 	if err != nil {
 		panic(err)
 	}
 }
+
 
 func RequestChallenge(writer http.ResponseWriter, request *http.Request){
 	cr := &modules.ClientHello{}
@@ -245,41 +247,42 @@ func AfterLogin(writer http.ResponseWriter, request *http.Request) {
 }
 
 
-func GenUUID()string{
-	uuid,err := uuid.NewUUID()
-	if err != nil{
-		fmt.Printf("uuid failed:%s\n",err.Error())
+func GenUUID(action int) string {
+	uuid, err := uuid.NewUUID()
+	if err != nil {
 		return ""
 	}
-	mapstore[uuid.String()] = "ok"
+	mapstore[uuid.String()] = action
 	return uuid.String()
 }
 
-func CheckNonce(nonce string)error{
-	if _,ok:=mapstore[nonce];!ok{
-		return fmt.Errorf("no nonce found")
+func CheckNonce(nonce string) (int, error) {
+	action, ok := mapstore[nonce]
+	if !ok {
+		return -1, fmt.Errorf("no nonce found")
 	}
-	return nil
+	return action, nil
 }
+
 ```
 
 初始化service:
 
 ```go
 func InitService(){
-	mapstore = make(map[string]string)  //用于存储生成的挑战uuid，实际的项目中可以保存在数据库，redis,或者cache中
-    vcfilters := make(map[string][]*modules.VCFilter)
+	mapstore = make(map[string]int)  //用于存储生成的挑战uuid，实际的项目中可以保存在数据库，redis,或者cache中
+    vcfilters := make(map[int][]*modules.VCFilter)
     
     //配置不同的actionType 下的VC filter
-	vcfilters[modules.ACTION_REGISTER] = []*modules.VCFilter{
+	vcfilters[modules.ACTION_AUTHORIZATION] = []*modules.VCFilter{
 		{Type: "EmailCredential",  //VC type
          Required: true,           //是否必须 
-         TrustRoots: []string{"did:ont:ssssss"}，//发行方的DID
+         TrustRoots: []string{"did:ont:testdid"}，//发行方的DID
         },
 	}
     //sdk 需要的服务端配置信息，可以从配置文件等中读取
 	conf := &ontloginsdk.SDKConfig{
-		Chain:[]string{"ont"},         //支持的链的名称， 如eth, ont, bsc等， 需要实现对应Processor
+		Chain:[]string{"ONT"},         //支持的链的名称， 如eth, ont, bsc等， 需要实现对应Processor
 		Alg:[]string{"ES256"},         //支持的签名算法 
 		ServerInfo:&modules.ServerInfo{                       //服务器的信息
 			Name:               "testServcer",                

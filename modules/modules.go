@@ -20,9 +20,8 @@ package modules
 type ClientHello struct {
 	Ver             string           `json:"ver"`
 	Type            string           `json:"type"`
-	Name            string           `json:"name,omitempty"`
 	Action          int              `json:"action"`
-	ClientChallenge *ClientChallenge `json:"ClientChallenge"`
+	ClientChallenge *ClientChallenge `json:"ClientChallenge,omitempty"`
 }
 
 type ClientChallenge struct {
