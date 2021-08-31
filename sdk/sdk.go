@@ -39,12 +39,12 @@ type OntLoginSdk struct {
 	didProcessors map[string]did.DidProcessor
 	conf          *SDKConfig
 	//this function should generate and save a random nonce with action for client
-	genRandomNonceFunc func() string
+	genRandomNonceFunc func(int) string
 	//this function get action by nonce
 	getActionByNonce func(string) (int, error)
 }
 
-func NewOntLoginSdk(conf *SDKConfig, processors map[string]did.DidProcessor, nonceFunc func() string, getActionByNonce func(string) (int, error)) (*OntLoginSdk, error) {
+func NewOntLoginSdk(conf *SDKConfig, processors map[string]did.DidProcessor, nonceFunc func(int) string, getActionByNonce func(string) (int, error)) (*OntLoginSdk, error) {
 	return &OntLoginSdk{
 		didProcessors:      processors,
 		conf:               conf,
@@ -68,7 +68,7 @@ func (s *OntLoginSdk) GenerateChallenge(req *modules.ClientHello) (*modules.Serv
 		return nil, err
 	}
 	//2. generate uuid
-	uuid := s.genRandomNonceFunc()
+	uuid := s.genRandomNonceFunc(req.Action)
 
 	res := &modules.ServerHello{}
 	res.Ver = modules.SYS_VER
