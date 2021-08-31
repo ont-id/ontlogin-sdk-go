@@ -78,8 +78,8 @@ func (s *OntLoginSdk) GenerateChallenge(req *modules.ClientHello) (*modules.Serv
 	res.Chain = s.conf.Chain
 	res.Alg = s.conf.Alg
 
-	if req.Action == modules.ACTION_REGISTER && s.conf.VCFilters[modules.ACTION_REGISTER] != nil {
-		res.VCFilters = s.conf.VCFilters[modules.ACTION_REGISTER]
+	if s.conf.VCFilters[req.Action] != nil {
+		res.VCFilters = s.conf.VCFilters[req.Action]
 	}
 	//serverproof
 	//extension
@@ -162,7 +162,7 @@ func (s *OntLoginSdk) validateClientHello(req *modules.ClientHello) error {
 	if !strings.EqualFold(req.Type, modules.TYPE_CLIENT_HELLO) {
 		return fmt.Errorf(modules.ERR_TYPE_NOT_SUPPORTED)
 	}
-	if req.Action != modules.ACTION_REGISTER && req.Action != modules.ACTION_LOGIN {
+	if req.Action != modules.ACTION_AUTHORIZATION && req.Action != modules.ACTION_CERTIFICATION {
 		return fmt.Errorf(modules.ERR_ACTION_NOT_SUPPORTED)
 	}
 
