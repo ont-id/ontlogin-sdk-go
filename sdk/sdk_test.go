@@ -1,10 +1,11 @@
 package sdk
 
 import (
+	"testing"
+
 	"github.com/ontology-tech/ontlogin-sdk-go/did"
 	"github.com/ontology-tech/ontlogin-sdk-go/did/ont"
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -30,8 +31,8 @@ func initTestEnv() *OntLoginSdk {
 	resolvers["ont"] = ontresolver
 	loginsdk, err := NewOntLoginSdk(conf, resolvers, func() string {
 		return "random string"
-	}, func(s string) error {
-		return nil
+	}, func(s string) (int, error) {
+		return 0, nil
 	})
 	if err != nil {
 		panic(err)

@@ -21,7 +21,7 @@ type ClientHello struct {
 	Ver             string           `json:"ver"`
 	Type            string           `json:"type"`
 	Name            string           `json:"name,omitempty"`
-	Action          string           `json:"action"`
+	Action          int              `json:"action"`
 	ClientChallenge *ClientChallenge `json:"ClientChallenge"`
 }
 
@@ -50,7 +50,7 @@ type ServerInfo struct {
 
 type VCFilter struct {
 	Type       string   `json:"type"`
-	Express    string   `json:"express,omitempty"`
+	Express    []string `json:"express,omitempty"`
 	TrustRoots []string `json:"trust_roots"`
 	Required   bool     `json:"required"`
 }
@@ -67,13 +67,13 @@ type ClientResponse struct {
 	Did   string   `json:"did"`
 	Nonce string   `json:"nonce"`
 	Proof *Proof   `json:"proof"`
-	VPs   []string `json:"VPs"`
+	VPs   []string `json:"VPs,omitempty"`
 }
 
 type Proof struct {
 	Type               string `json:"type"`
 	VerificationMethod string `json:"verificationMethod"`
-	Created            string `json:"created"`
+	Created            uint64 `json:"created"`
 	Value              string `json:"value"`
 }
 
@@ -82,11 +82,11 @@ type ClientResponseMsg struct {
 	Server  ServerInfoToSign `json:"server"`
 	Nonce   string           `json:"nonce"`
 	Did     string           `json:"did"`
-	Created string           `json:"created"`
+	Created uint64           `json:"created"`
 }
 
 type ServerInfoToSign struct {
 	Name string `json:"name"`
 	Url  string `json:"url"`
-	Did  string `json:"did"`
+	Did  string `json:"did,omitempty"`
 }

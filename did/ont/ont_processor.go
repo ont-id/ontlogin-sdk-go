@@ -22,8 +22,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 	"strings"
+
+	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 
 	"github.com/ontio/ontology-crypto/keypair"
 	ontology_go_sdk "github.com/ontio/ontology-go-sdk"
@@ -146,7 +147,7 @@ func (o *OntProcessor) VerifyCredential(did string, index int, credential string
 		return fmt.Errorf("VerifyJWTCredibleOntId failed:%s", err.Error())
 	}
 
-	//4. verify status
+	//5. verify status
 	err = o.sdk.Credential.VerifyJWTStatus(credential)
 	if err != nil {
 		return fmt.Errorf("VerifyJWTStatus failed:%s", err.Error())
