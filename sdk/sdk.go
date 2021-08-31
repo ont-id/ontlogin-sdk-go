@@ -78,7 +78,7 @@ func (s *OntLoginSdk) GenerateChallenge(req *modules.ClientHello) (*modules.Serv
 	res.Chain = s.conf.Chain
 	res.Alg = s.conf.Alg
 
-	if s.conf.VCFilters[req.Action] != nil {
+	if s.conf.VCFilters != nil && s.conf.VCFilters[req.Action] != nil {
 		res.VCFilters = s.conf.VCFilters[req.Action]
 	}
 	//serverproof
