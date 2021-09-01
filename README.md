@@ -51,7 +51,7 @@ type ServerInfo struct {
 ```
 type VCFilter struct {
 	Type       string   `json:"type"`                                   //VC的类型 如“DegreeCredential”等
-	Express    []string `json:"express,omitempty"`                      //零知识证明表但是列表
+	Express    []string `json:"express,omitempty"`                      //零知识证明表达式列表
 	TrustRoots []string `json:"trust_roots"`                            //信任的VC发行方DID列表
 	Required   bool     `json:"required"`                               //是否必需   
 }
