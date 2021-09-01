@@ -387,7 +387,7 @@ func Login(writer http.ResponseWriter, request *http.Request){
 如果要求客户端在挑战中包含所需要的VC，由于VC的格式并不固定，所以sdk仅提供从VP中抽取VC的JSON格式的文本的功能
 
 ```
- GetCredentailJson(chain, presentation string) ([]string, error)
+ GetCredentialJson(chain, presentation string) ([]string, error)
 ```
 
 服务端可以根据约定好的格式来解析VC，做后续的业务处理

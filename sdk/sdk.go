@@ -86,7 +86,7 @@ func (s *OntLoginSdk) GenerateChallenge(req *modules.ClientHello) (*modules.Serv
 	return res, nil
 }
 
-func (s *OntLoginSdk) GetCredentailJson(chain, presentation string) ([]string, error) {
+func (s *OntLoginSdk) GetCredentialJson(chain, presentation string) ([]string, error) {
 	processor, ok := s.didProcessors[chain]
 	if !ok {
 		return nil, fmt.Errorf("chain not supported")

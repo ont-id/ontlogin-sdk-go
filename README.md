@@ -136,7 +136,7 @@ type Proof struct {
 
 
 
-## 4. GetCredentailJson
+## 4. GetCredentialJson
 
 取得VP中所有VC的JSON字符串
 
