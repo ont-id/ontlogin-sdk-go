@@ -73,19 +73,19 @@ func (o *OntProcessor) VerifyPresentation(did string, index int, presentation st
 	//1. verify singer
 	err := o.sdk.Credential.VerifyJWTIssuerSignature(presentation)
 	if err != nil {
-		return fmt.Errorf("VerifyJWTIssuerSignature failed:%s", err.Error())
+		return fmt.Errorf(modules.ERR_VERIFY_JWT_ISSUER_SIG_FAILED)
 	}
 
 	jwtPress, err := o.sdk.Credential.JWTPresentation2Json(presentation)
 	if err != nil {
-		return fmt.Errorf("JWTPresentation2Json failed:%s", err.Error())
+		return fmt.Errorf(modules.ERR_JWTPRESENTATION_DECODE_FAILED)
 	}
 
 	//verify presentation proof
 	for i := range jwtPress.Proof {
 		_, err = o.sdk.Credential.VerifyPresentationProof(jwtPress, i)
 		if err != nil {
-			return fmt.Errorf("VerifyPresentationProof failed:%s", err.Error())
+			return fmt.Errorf(modules.ERR_VERIFY_PRESENTATION_PROOF_FAILED)
 		}
 	}
 	//verify presentations
@@ -93,7 +93,7 @@ func (o *OntProcessor) VerifyPresentation(did string, index int, presentation st
 	for _, cred := range jwtPress.VerifiableCredential {
 		c, err := o.sdk.Credential.JsonCred2JWT(cred)
 		if err != nil {
-			return fmt.Errorf("JsonCred2JWT failed:%s", err.Error())
+			return fmt.Errorf(modules.ERR_JSON_TO_JWT_FAILED)
 		}
 		err = o.VerifyCredential(did, index, c, utils.GetTrustRoot(cred.Type, requiredTypes))
 		if err != nil {
@@ -114,7 +114,7 @@ func (o *OntProcessor) VerifyPresentation(did string, index int, presentation st
 				}
 			}
 			if !f {
-				return fmt.Errorf("required credential:%s is not existed", required)
+				return fmt.Errorf(modules.ERR_REQUIRED_CREDENTIAL_NOT_EXIST, required)
 			}
 		}
 	}
@@ -125,32 +125,32 @@ func (o *OntProcessor) VerifyCredential(did string, index int, credential string
 	//1. verify signer
 	err := o.sdk.Credential.VerifyJWTIssuerSignature(credential)
 	if err != nil {
-		return fmt.Errorf("VerifyJWTIssuerSignature failed:%s", err.Error())
+		return fmt.Errorf(modules.ERR_VERIFY_JWT_ISSUER_SIG_FAILED)
 	}
 
 	//2. verify issuance date
 	err = o.sdk.Credential.VerifyJWTIssuanceDate(credential)
 	if err != nil {
-		return fmt.Errorf("VerifyJWTIssuanceDate failed:%s", err.Error())
+		return fmt.Errorf(modules.ERR_VERIFY_JWT_ISSUE_DATE_FAILED)
 
 	}
 
 	//3. verify expiration date
 	err = o.sdk.Credential.VerifyJWTExpirationDate(credential)
 	if err != nil {
-		return fmt.Errorf("VerifyJWTIssuerSignature failed:%s", err.Error())
+		return fmt.Errorf(modules.ERR_VERIFY_JWT_EXPIRE_DATE_FAILED)
 	}
 
 	//4. verify trusted issuer did
 	err = o.sdk.Credential.VerifyJWTCredibleOntId(trustedDIDs, credential)
 	if err != nil {
-		return fmt.Errorf("VerifyJWTCredibleOntId failed:%s", err.Error())
+		return fmt.Errorf(modules.ERR_VERIFY_JWT_CREDITABLE_DID_FAILED)
 	}
 
 	//5. verify status
 	err = o.sdk.Credential.VerifyJWTStatus(credential)
 	if err != nil {
-		return fmt.Errorf("VerifyJWTStatus failed:%s", err.Error())
+		return fmt.Errorf(modules.ERR_VERIFY_JWT_STATUS_FAILED)
 	}
 	return nil
 }
@@ -158,7 +158,7 @@ func (o *OntProcessor) VerifyCredential(did string, index int, credential string
 func (o *OntProcessor) getDIDPubkey(did string, index int) (keypair.PublicKey, error) {
 
 	if o.sdk.Native == nil || o.sdk.Native.OntId == nil {
-		return nil, fmt.Errorf("ontsdk is nil")
+		return nil, fmt.Errorf(modules.ERR_ONT_SDK_EMPTY)
 	}
 
 	pubKey, err := o.sdk.Native.OntId.GetPublicKeysJson(did)
@@ -171,7 +171,7 @@ func (o *OntProcessor) getDIDPubkey(did string, index int) (keypair.PublicKey, e
 		return nil, err
 	}
 	if len(pks) < index {
-		return nil, fmt.Errorf("no public key found")
+		return nil, fmt.Errorf(modules.ERR_PUBKEY_EMPTY)
 	}
 	pk, err := hex.DecodeString(pks[index-1].PublicKeyHex)
 	if err != nil {
@@ -211,21 +211,21 @@ func NewOntProcessor(doubleDirection bool, endpointURL string, didContractAddr s
 	res.isDoubleDirectionVerify = doubleDirection
 	if doubleDirection {
 		if len(didContractAddr) == 0 {
-			return nil, fmt.Errorf("did contract should not be empty")
+			return nil, fmt.Errorf(modules.ERR_DID_CONTRACT_EMPTY)
 		}
 		_, err := common.AddressFromHexString(didContractAddr)
 		if err != nil {
-			return nil, fmt.Errorf("did contract address %s is invalid!", didContractAddr)
+			return nil, fmt.Errorf(modules.ERR_DID_CONTRACT_ADDRESS_INVALID)
 		}
 		sdk.SetCredContractAddress(didContractAddr)
 
 		wallet, err := sdk.OpenWallet(walletFile)
 		if err != nil {
-			return nil, fmt.Errorf("open wallet failed! %s", err.Error())
+			return nil, fmt.Errorf(modules.ERR_OPEN_WALLET_FAILED)
 		}
 		acct, err := wallet.GetDefaultAccount([]byte(password))
 		if err != nil {
-			return nil, fmt.Errorf("get account failed! %s", err.Error())
+			return nil, fmt.Errorf(modules.ERR_OPEN_ACCOUNT_FAILED)
 		}
 		res.acct = acct
 	}

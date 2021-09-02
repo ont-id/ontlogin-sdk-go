@@ -56,7 +56,7 @@ func NewOntLoginSdk(conf *SDKConfig, processors map[string]did.DidProcessor, non
 func (s *OntLoginSdk) GetDIDChain(did string) (string, error) {
 	tmpArr := strings.Split(did, ":")
 	if len(tmpArr) != 3 {
-		return "", fmt.Errorf("valid did format")
+		return "", fmt.Errorf(modules.ERR_INVALID_DID_FORMAT)
 	}
 	return tmpArr[1], nil
 }
@@ -89,7 +89,7 @@ func (s *OntLoginSdk) GenerateChallenge(req *modules.ClientHello) (*modules.Serv
 func (s *OntLoginSdk) GetCredentialJson(chain, presentation string) ([]string, error) {
 	processor, ok := s.didProcessors[chain]
 	if !ok {
-		return nil, fmt.Errorf("chain not supported")
+		return nil, fmt.Errorf(modules.ERR_CHAIN_NOT_SUPPORTED)
 	}
 
 	return processor.GetCredentialJsons(presentation)
@@ -104,7 +104,7 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 
 	did, index, err := getDIDKeyAndIndex(res.Proof.VerificationMethod)
 	if !strings.EqualFold(did, res.Did) {
-		return fmt.Errorf("did and VerificationMethod not match")
+		return fmt.Errorf(modules.ERR_DID_NOT_MATCH)
 	}
 	chain, err := s.GetDIDChain(did)
 	if err != nil {
@@ -112,7 +112,7 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	}
 	action, err := s.getActionByNonce(res.Nonce)
 	if err != nil {
-		return fmt.Errorf("nonce is existed on server side")
+		return fmt.Errorf(modules.ERR_NONCE_IS_NOT_EXIST)
 	}
 	msg := &modules.ClientResponseMsg{
 		Type: res.Type,
@@ -128,15 +128,15 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 
 	sigdata, err := hex.DecodeString(res.Proof.Value)
 	if err != nil {
-		return fmt.Errorf("decode proof value failed:%s", err.Error())
+		return fmt.Errorf(modules.ERR_DECODE_SIG)
 	}
 	dataToSign, err := json.Marshal(msg)
 	if err != nil {
-		return fmt.Errorf("marshal message failed:%s", err.Error())
+		return fmt.Errorf(modules.ERR_MARSHAL_MSG)
 	}
 	processor, ok := s.didProcessors[chain]
 	if !ok {
-		return fmt.Errorf("not a support did chain:%s", chain)
+		return fmt.Errorf(modules.ERR_CHAIN_NOT_SUPPORTED)
 	}
 	if err = processor.VerifySig(did, index, dataToSign, sigdata); err != nil {
 		return err
@@ -182,11 +182,11 @@ func (s *OntLoginSdk) validateClientResponse(response *modules.ClientResponse) e
 func getDIDKeyAndIndex(verifymethod string) (string, int, error) {
 	tmpArr := strings.Split(verifymethod, "#")
 	if len(tmpArr) != 2 {
-		return "", 0, fmt.Errorf("verificationMethod format invalid")
+		return "", 0, fmt.Errorf(modules.ERR_VERIFYMETHOD_FORMAT_INVALID)
 	}
 	keyArr := strings.Split(tmpArr[1], "-")
 	if len(keyArr) != 2 {
-		return "", 0, fmt.Errorf("verificationMethod format invalid")
+		return "", 0, fmt.Errorf(modules.ERR_VERIFYMETHOD_FORMAT_INVALID)
 	}
 	idx, err := strconv.Atoi(keyArr[1])
 	return tmpArr[0], idx, err
