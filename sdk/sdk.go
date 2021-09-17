@@ -146,7 +146,7 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	if res.VPs != nil && len(res.VPs) > 0 {
 		requiredTypes := s.conf.VCFilters[action]
 		for _, vp := range res.VPs {
-			if err = processor.VerifyPresentation(did, index, vp, requiredTypes); err != nil {
+			if err = processor.VerifyPresentation(vp, requiredTypes); err != nil {
 				return err
 			}
 		}

@@ -29,7 +29,7 @@ func initTestEnv() *OntLoginSdk {
 		panic(err)
 	}
 	resolvers["ont"] = ontresolver
-	loginsdk, err := NewOntLoginSdk(conf, resolvers, func() string {
+	loginsdk, err := NewOntLoginSdk(conf, resolvers, func(int) string {
 		return "random string"
 	}, func(s string) (int, error) {
 		return 0, nil
