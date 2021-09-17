@@ -69,8 +69,7 @@ func (o *OntProcessor) Sign(did string, index int, msg []byte) ([]byte, error) {
 	return signature.Sign(singer, msg)
 }
 
-func (o *OntProcessor) VerifyPresentation(did string, index int, presentation string, requiredTypes []*modules.VCFilter) error {
-	//1. verify singer
+func (o *OntProcessor) VerifyPresentation(presentation string, requiredTypes []*modules.VCFilter) error {
 	err := o.sdk.Credential.VerifyJWTIssuerSignature(presentation)
 	if err != nil {
 		return fmt.Errorf(modules.ERR_VERIFY_JWT_ISSUER_SIG_FAILED)
@@ -81,21 +80,13 @@ func (o *OntProcessor) VerifyPresentation(did string, index int, presentation st
 		return fmt.Errorf(modules.ERR_JWTPRESENTATION_DECODE_FAILED)
 	}
 
-	//verify presentation proof
-	for i := range jwtPress.Proof {
-		_, err = o.sdk.Credential.VerifyPresentationProof(jwtPress, i)
-		if err != nil {
-			return fmt.Errorf(modules.ERR_VERIFY_PRESENTATION_PROOF_FAILED)
-		}
-	}
-	//verify presentations
 	credTypes := make([]string, 0)
 	for _, cred := range jwtPress.VerifiableCredential {
 		c, err := o.sdk.Credential.JsonCred2JWT(cred)
 		if err != nil {
 			return fmt.Errorf(modules.ERR_JSON_TO_JWT_FAILED)
 		}
-		err = o.VerifyCredential(did, index, c, utils.GetTrustRoot(cred.Type, requiredTypes))
+		err = o.VerifyCredential(c, utils.GetTrustRoot(cred.Type, requiredTypes))
 		if err != nil {
 			return err
 		}
@@ -121,7 +112,7 @@ func (o *OntProcessor) VerifyPresentation(did string, index int, presentation st
 	return nil
 }
 
-func (o *OntProcessor) VerifyCredential(did string, index int, credential string, trustedDIDs []string) error {
+func (o *OntProcessor) VerifyCredential(credential string, trustedDIDs []string) error {
 	//1. verify signer
 	err := o.sdk.Credential.VerifyJWTIssuerSignature(credential)
 	if err != nil {
