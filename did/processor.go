@@ -20,7 +20,6 @@ package did
 import "github.com/ontology-tech/ontlogin-sdk-go/modules"
 
 type DidProcessor interface {
-	//GetPubkeyString(did string ,index int)(string,error)
 	VerifySig(did string, index int, msg []byte, sig []byte) error
 	Sign(did string, index int, msg []byte) ([]byte, error)
 	VerifyPresentation(presentation string, requiredTypes []*modules.VCFilter) error

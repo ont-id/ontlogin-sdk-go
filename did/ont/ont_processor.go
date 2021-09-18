@@ -25,14 +25,13 @@ import (
 	"strings"
 
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
+	"github.com/ontology-tech/ontlogin-sdk-go/utils"
 
 	"github.com/ontio/ontology-crypto/keypair"
 	ontology_go_sdk "github.com/ontio/ontology-go-sdk"
 	oacct "github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/core/signature"
-
-	"github.com/ontology-tech/ontlogin-sdk-go/utils"
 )
 
 type DidPubkey struct {
