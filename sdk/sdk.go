@@ -128,8 +128,11 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 		Did:     did,
 		Created: res.Proof.Created,
 	}
-
-	sigdata, err := hex.DecodeString(res.Proof.Value)
+	v := res.Proof.Value
+	if strings.HasPrefix(res.Proof.Value, "0x") {
+		v = strings.ReplaceAll(res.Proof.Value, "0x", "")
+	}
+	sigdata, err := hex.DecodeString(v)
 	if err != nil {
 		return fmt.Errorf(modules.ERR_DECODE_SIG)
 	}
