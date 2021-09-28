@@ -58,6 +58,9 @@ func (s *OntLoginSdk) GetDIDChain(did string) (string, error) {
 	if len(tmpArr) != 3 {
 		return "", fmt.Errorf(modules.ERR_INVALID_DID_FORMAT)
 	}
+	if tmpArr[1] == "etho" {
+		return "eth", nil
+	}
 	return tmpArr[1], nil
 }
 

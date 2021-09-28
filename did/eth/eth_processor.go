@@ -28,7 +28,7 @@ import (
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 )
 
-/// todo currently we don't query the did:eth:xxx from smart contract,
+/// todo currently we don't query the did:etho:xxx from smart contract,
 /// so we can only verify signature from the eth address
 ///
 
@@ -73,7 +73,7 @@ func getEthAddressFromDID(did string) (string, error) {
 	if len(arr) != 3 {
 		return "", fmt.Errorf(modules.ERR_INVALID_DID_FORMAT)
 	}
-	if arr[1] != "eth" {
+	if arr[1] != "etho" {
 		return "", fmt.Errorf(modules.ERR_NOT_ETH_DID)
 	}
 	return "0x" + arr[2], nil
