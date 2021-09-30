@@ -155,10 +155,13 @@ func (o *OntProcessor) getDIDPubkey(did string, index int) (keypair.PublicKey, e
 	if err != nil {
 		return nil, err
 	}
+	if pubKey == nil || len(pubKey) == 0 {
+		return nil, fmt.Errorf(modules.ERR_DID_PUBLICKEY_NOT_FOUND)
+	}
 	var pks []DidPubkey
 	err = json.Unmarshal(pubKey, &pks)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(modules.ERR_DID_PUBLICKEY_FORMAT_INVALID)
 	}
 	if len(pks) < index {
 		return nil, fmt.Errorf(modules.ERR_PUBKEY_EMPTY)
