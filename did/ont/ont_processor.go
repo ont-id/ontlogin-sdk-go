@@ -153,7 +153,7 @@ func (o *OntProcessor) getDIDPubkey(did string, index int) (keypair.PublicKey, e
 
 	pubKey, err := o.sdk.Native.OntId.GetPublicKeysJson(did)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(modules.ERR_ONT_DID_NOT_REGISTERED)
 	}
 	if pubKey == nil || len(pubKey) == 0 {
 		return nil, fmt.Errorf(modules.ERR_DID_PUBLICKEY_NOT_FOUND)

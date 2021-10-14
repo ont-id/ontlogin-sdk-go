@@ -47,3 +47,8 @@ func TestOntLoginSdk_GetDIDChain(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, chain, "ont")
 }
+
+func TestOntLoginSdk_ValidateClientResponse(t *testing.T) {
+	olsdk := initTestEnv()
+	olsdk.ValidateClientResponse()
+}
