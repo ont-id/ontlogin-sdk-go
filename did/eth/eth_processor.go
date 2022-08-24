@@ -83,10 +83,12 @@ func ETHVerifySig(from string, sig []byte, msg []byte) bool {
 	fromAddr := common.HexToAddress(from)
 
 	// https://github.com/ethereum/go-ethereum/blob/55599ee95d4151a2502465e0afc7c47bd1acba77/internal/ethapi/api.go#L442
-	if sig[64] != 27 && sig[64] != 28 {
-		return false
+	if sig[64] != 0 || sig[64] != 1 {
+		if sig[64] != 27 && sig[64] != 28 {
+			return false
+		}
+		sig[64] -= 27
 	}
-	sig[64] -= 27
 	pubKey, err := crypto.SigToPub(EthSignHash(msg), sig)
 	if err != nil {
 		return false
