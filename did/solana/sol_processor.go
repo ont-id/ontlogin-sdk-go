@@ -12,7 +12,7 @@ type SolanaProcessor struct {
 
 func NewSolanaProcessor() *SolanaProcessor { return &SolanaProcessor{} }
 
-func (s SolanaProcessor) VerifySig(did string, index int, msg []byte, sig []byte) error {
+func (s SolanaProcessor) VerifySig(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error {
 	addr, err := getSolAddrFromDID(did)
 	if err != nil {
 		return err

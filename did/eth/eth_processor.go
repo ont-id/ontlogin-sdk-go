@@ -39,7 +39,7 @@ func NewEthProcessor() *EthProcessor {
 	return &EthProcessor{}
 }
 
-func (e EthProcessor) VerifySig(did string, index int, msg []byte, sig []byte) error {
+func (e EthProcessor) VerifySig(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error {
 	ethAddress, err := getEthAddressFromDID(did)
 	if err != nil {
 		return err
