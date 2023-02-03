@@ -21,6 +21,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"strconv"
 	"strings"
 
@@ -147,7 +148,21 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	if !ok {
 		return fmt.Errorf(modules.ERR_CHAIN_NOT_SUPPORTED)
 	}
-	if err = processor.VerifySig(did, index, dataToSign, sigdata); err != nil {
+	var pubkeybts []byte
+	if len(res.Pubkey) > 0 {
+		if strings.HasPrefix(res.Pubkey, "0x") {
+			pubkeybts, err = hexutil.Decode(res.Pubkey)
+			if err != nil {
+				return fmt.Errorf(modules.ERR_INVALID_PUBKEY)
+			}
+		} else {
+			pubkeybts, err = hex.DecodeString(res.Pubkey)
+			if err != nil {
+				return fmt.Errorf(modules.ERR_INVALID_PUBKEY)
+			}
+		}
+	}
+	if err = processor.VerifySig(did, index, dataToSign, sigdata, pubkeybts); err != nil {
 		return err
 	}
 

@@ -61,12 +61,13 @@ type Extension struct {
 }
 
 type ClientResponse struct {
-	Ver   string   `json:"ver"`
-	Type  string   `json:"type"`
-	Did   string   `json:"did"`
-	Nonce string   `json:"nonce"`
-	Proof *Proof   `json:"proof"`
-	VPs   []string `json:"VPs,omitempty"`
+	Ver    string   `json:"ver"`
+	Type   string   `json:"type"`
+	Pubkey string   `json:"pubkey"`
+	Did    string   `json:"did"`
+	Nonce  string   `json:"nonce"`
+	Proof  *Proof   `json:"proof"`
+	VPs    []string `json:"VPs,omitempty"`
 }
 
 type Proof struct {
