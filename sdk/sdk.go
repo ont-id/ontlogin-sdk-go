@@ -65,6 +65,9 @@ func (s *OntLoginSdk) GetDIDChain(did string) (string, error) {
 	if tmpArr[1] == "solo" {
 		return "solana", nil
 	}
+	if tmpArr[1] == "apto" {
+		return "aptos", nil
+	}
 	return tmpArr[1], nil
 }
 
@@ -144,6 +147,7 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	if err != nil {
 		return fmt.Errorf(modules.ERR_MARSHAL_MSG)
 	}
+
 	processor, ok := s.didProcessors[chain]
 	if !ok {
 		return fmt.Errorf(modules.ERR_CHAIN_NOT_SUPPORTED)

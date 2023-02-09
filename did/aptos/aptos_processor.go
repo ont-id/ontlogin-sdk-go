@@ -54,7 +54,10 @@ func (apt *AptosProcessor) VerifySig(did string, index int, msg []byte, sig []by
 	}
 
 	pubkey := ed25519.PublicKey(pubkeyBytes)
-	f := ed25519.Verify(pubkey, msg, sig)
+
+	msgWithPrefix := append([]byte("APTOS\nmessage: "), msg...)
+
+	f := ed25519.Verify(pubkey, msgWithPrefix, sig)
 	if !f {
 		return fmt.Errorf(modules.ERR_INVALID_SIGNATURE)
 	}
