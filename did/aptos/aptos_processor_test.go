@@ -1,6 +1,7 @@
 package aptos
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/test-go/testify/assert"
@@ -43,6 +44,15 @@ func TestAptosProcessor_VerifySig(t *testing.T) {
 	assert.Nil(t, err)
 
 	err = apProcessor.VerifySig("did:apto:207fc13512c322ea6c9e1c8fe9ecbd4b6761c6d66e09f5fd6e880c45e059bc26", 0, msgWithPrefix, sig2, pubkey)
+	assert.Nil(t, err)
+}
+
+func TestVerifyNew(t *testing.T) {
+	apProcessor := NewAptosProcessor("https://fullnode.mainnet.aptoslabs.com")
+	msg := []byte("hello")
+	sig, _ := hex.DecodeString("989585ced15c22c13f5da1908f75a63a311b6590d3fa05fb55783c1467b218b95d4b17e0ed3fce6424aa7ad8c506603800241b669634bde01ce44cf955e87800")
+	pubkey, _ := hexutil.Decode("0xafc987e29078ab7e50896dd469a599d4ecd28ae8abfd3f18f88f4a6176c8d3a9")
+	err := apProcessor.VerifySig("did:apto:d0c8061e50b6e8ace6cd47d10b6037e3b9593310cf8b66c3a975c81738f119a5", 0, msg, sig, pubkey)
 	assert.Nil(t, err)
 }
 
