@@ -1,8 +1,13 @@
 package starkNet
 
 import (
+	"context"
 	"fmt"
+	"github.com/dontpanicdao/caigo"
+	"github.com/dontpanicdao/caigo/gateway"
+	"github.com/dontpanicdao/caigo/types"
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
+	"math/big"
 	"strings"
 )
 
@@ -13,8 +18,35 @@ func NewStarkNetProcessor() *StarkNetProcessor {
 }
 
 func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error {
-	//TODO implement me
-	panic("implement me")
+
+	address, err := getStarkAddrFromDID(did)
+	if err != nil {
+		return err
+	}
+	hash, err := caigo.Curve.PedersenHash([]*big.Int{types.BytesToBig(msg)})
+	if err != nil {
+		panic(err.Error())
+	}
+
+	sigArr := strings.Split(string(sig), ",")
+
+	gw := gateway.NewClient(gateway.WithChain("main"))
+
+	callResp, err := gw.Call(context.Background(), types.FunctionCall{
+		ContractAddress:    types.HexToHash(address),
+		EntryPointSelector: "isValidSignature",
+		Calldata:           append([]string{fmt.Sprintf("%d", hash), fmt.Sprintf("%d", len(sigArr))}, sigArr...),
+	}, "")
+	if err != nil {
+		return err
+	}
+	if len(callResp) != 1 {
+		return fmt.Errorf("verify sig failed")
+	}
+	if callResp[0] != "0x1" {
+		return fmt.Errorf("verify sig failed")
+	}
+	return nil
 }
 
 func (s StarkNetProcessor) Sign(did string, index int, msg []byte) ([]byte, error) {
