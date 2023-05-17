@@ -23,12 +23,16 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 	if err != nil {
 		return err
 	}
-	hash, err := caigo.Curve.PedersenHash([]*big.Int{types.BytesToBig(msg)})
+	hash, err := caigo.Curve.PedersenHash([]*big.Int{types.StrToBig(string(msg))})
 	if err != nil {
 		panic(err.Error())
 	}
+	fmt.Printf("address:%s\n", address)
+	fmt.Printf("hash:%s\n", hash)
 
 	sigArr := strings.Split(string(sig), ",")
+	fmt.Printf("%v\n", sigArr)
+	fmt.Printf("calldata:%v\n", append([]string{fmt.Sprintf("%d", hash), fmt.Sprintf("%d", len(sigArr))}, sigArr...))
 
 	gw := gateway.NewClient(gateway.WithChain("main"))
 
@@ -77,5 +81,5 @@ func getStarkAddrFromDID(did string) (string, error) {
 	if arr[1] != "starko" {
 		return "", fmt.Errorf(modules.ERR_NOT_SOL_DID)
 	}
-	return arr[2], nil
+	return "0x" + arr[2], nil
 }
