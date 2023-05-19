@@ -4,10 +4,12 @@ import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/fardream/go-bcs/bcs"
 	"github.com/ontology-tech/ontlogin-sdk-go/did/sui/sui_types"
+	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 	"github.com/test-go/testify/assert"
 	"golang.org/x/crypto/blake2b"
 	"testing"
@@ -72,4 +74,28 @@ func TestSuiProcessor_VerifySig(t *testing.T) {
 	sp := NewSuiProcessor()
 	err := sp.VerifySig("did:suio:9eaf9bef9fc7e9eab7fcc6d37aab6d78aaaf138e469611bb80abda21e861e008", 0, []byte("123456"), bts[1:len(bts)-32], bts[len(bts)-32:])
 	assert.Nil(t, err, "error")
+}
+
+func TestSuiProcessor_VerifySig2(t *testing.T) {
+	msg := &modules.ClientResponseMsg{
+		Type: "ClientResponse",
+		Server: modules.ServerInfoToSign{
+			Name: "taskon_server",
+			Url:  "https://taskon.xyz",
+			Did:  "did:ont:AXdmdzbyf3WZKQzRtrNQwAR91ZxMUfhXkt",
+		},
+		Nonce:   "ce2fe223-f5f5-11ed-995e-525400516d2d",
+		Did:     "did:suio:9eaf9bef9fc7e9eab7fcc6d37aab6d78aaaf138e469611bb80abda21e861e008",
+		Created: 1684467677,
+	}
+	msgbts, err := json.Marshal(msg)
+	assert.Nil(t, err)
+
+	sig := "0x086ff5b902162c0e412c02bda112b754463a49b7301ce341fdef46eae149f76e92b93087975c7f93e394a2bc412152f529936fc0ef168ae9dddc22c3c95f5f24550eea114dfae099c3a2a159c6da6433da15ba3bb5b581ca728ae215c03ab"
+	sigbts, err := hexutil.Decode(sig)
+	assert.Nil(t, err)
+	sp := NewSuiProcessor()
+	err = sp.VerifySig("did:suio:9eaf9bef9fc7e9eab7fcc6d37aab6d78aaaf138e469611bb80abda21e861e008", 0, msgbts, sigbts[1:len(sigbts)-32], sigbts[len(sigbts)-32:])
+	assert.Nil(t, err)
+
 }
