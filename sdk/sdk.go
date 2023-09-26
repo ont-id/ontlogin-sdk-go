@@ -71,6 +71,9 @@ func (s *OntLoginSdk) GetDIDChain(did string) (string, error) {
 	if tmpArr[1] == "suio" {
 		return "sui", nil
 	}
+	if tmpArr[1] == "trono" {
+		return "tron", nil
+	}
 
 	return tmpArr[1], nil
 }

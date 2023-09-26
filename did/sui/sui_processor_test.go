@@ -99,3 +99,27 @@ func TestSuiProcessor_VerifySig2(t *testing.T) {
 	assert.Nil(t, err)
 
 }
+
+func TestSuiProcessor_VerifySig3(t *testing.T) {
+	msg := &modules.ClientResponseMsg{
+		Type: "ClientResponse",
+		Server: modules.ServerInfoToSign{
+			Name: "taskon_server",
+			Url:  "https://taskon.xyz",
+			Did:  "did:ont:AXdmdzbyf3WZKQzRtrNQwAR91ZxMUfhXkt",
+		},
+		Nonce:   "3a5e19ad-2f50-11ee-a07f-52540038ea50",
+		Did:     "did:suio:b991c63472b156206c03f5dda19c562c2caf0b741334016e23c07b1d33cfafe0",
+		Created: 1690773211,
+	}
+	msgbts, err := json.Marshal(msg)
+	assert.Nil(t, err)
+
+	sig := "ALrK+0bmBU5+HF278bZYakREKwAfz9w0spSbvmDmRq4zvcIYt2PAakGliz4OriCzkWFNnUVjFbuLh0vFBo5I/giRP9N4DufMKNx9coXHUlc+G8MXyiCu2XlgOr5E30sJDw=="
+	sigbts, _ := base64.StdEncoding.DecodeString(sig)
+	assert.Nil(t, err)
+	sp := NewSuiProcessor()
+	err = sp.VerifySig("did:suio:b991c63472b156206c03f5dda19c562c2caf0b741334016e23c07b1d33cfafe0", 0, msgbts, sigbts[1:len(sigbts)-32], sigbts[len(sigbts)-32:])
+	assert.Nil(t, err)
+
+}
