@@ -1,4 +1,4 @@
-package starkNet
+package starknet
 
 import (
 	"context"
