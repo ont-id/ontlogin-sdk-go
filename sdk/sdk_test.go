@@ -3,7 +3,7 @@ package sdk
 import (
 	"encoding/json"
 	"github.com/ontology-tech/ontlogin-sdk-go/did"
-	"github.com/ontology-tech/ontlogin-sdk-go/did/starkNet"
+	"github.com/ontology-tech/ontlogin-sdk-go/did/starknet"
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 	"github.com/test-go/testify/assert"
 	"testing"
@@ -23,7 +23,7 @@ func TestVerify(t *testing.T) {
 		VCFilters: map[int][]*modules.VCFilter{},
 	}
 	processors := make(map[string]did.DidProcessor)
-	processors["starkNet"] = starkNet.NewStarkNetProcessor()
+	processors["starknet"] = starknet.NewStarkNetProcessor()
 	s, _ := NewOntLoginSdk(conf, processors, func(int) string {
 		return ""
 	}, func(string) (int, error) {
