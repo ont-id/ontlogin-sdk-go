@@ -41,24 +41,76 @@ type DefinitionSpec struct {
 }
 
 type StarkJsonData struct {
-	Types       Types            `json:"types"`
-	PrimaryType string           `json:"primaryType"`
-	Domain      caigo.Domain     `json:"domain"`
-	Message     StarkJsonMessage `json:"message"`
+	Types       map[string]caigo.TypeDef `json:"types"`
+	PrimaryType string                   `json:"primaryType"`
+	Domain      caigo.Domain             `json:"domain"`
 }
 
-func (self *StarkJsonData) GetTypeDef() map[string]caigo.TypeDef {
-	return map[string]caigo.TypeDef{
-		"StarkNetDomain": {
-			Definitions: parseDefs(self.Types.StarkNetDomain),
+var DefStarkJsonData = StarkJsonData{
+	Types: map[string]caigo.TypeDef{
+		"StarkNetDomain": caigo.TypeDef{
+			Definitions: []caigo.Definition{
+				{
+					Name: "name",
+					Type: "felt",
+				},
+				{
+					Name: "version",
+					Type: "felt",
+				},
+				{
+					Name: "chainId",
+					Type: "felt",
+				},
+			},
 		},
 		"Server": {
-			Definitions: parseDefs(self.Types.Server),
+			Definitions: []caigo.Definition{
+				{
+					Name: "name",
+					Type: "felt",
+				},
+				{
+					Name: "url",
+					Type: "felt",
+				},
+				{
+					Name: "did",
+					Type: "felt",
+				},
+			},
 		},
 		"SignData": {
-			Definitions: parseDefs(self.Types.SignData),
+			Definitions: []caigo.Definition{
+				{
+					Name: "type",
+					Type: "felt",
+				},
+				{
+					Name: "server",
+					Type: "Server",
+				},
+				{
+					Name: "nonce",
+					Type: "felt",
+				},
+				{
+					Name: "did",
+					Type: "felt",
+				},
+				{
+					Name: "created",
+					Type: "felt",
+				},
+			},
 		},
-	}
+	},
+	PrimaryType: "SignData",
+	Domain: caigo.Domain{
+		Name:    "TaskOn",
+		Version: "1",
+		ChainId: "1",
+	},
 }
 
 type StarkJsonMessage struct {
@@ -73,7 +125,7 @@ type StarkJsonMessage struct {
 	Created int    `json:"created"`
 }
 
-func (self StarkJsonMessage) FmtDefinitionEncoding(field string) (fmtEnc []*big.Int) {
+func (self *StarkJsonMessage) FmtDefinitionEncoding(field string) (fmtEnc []*big.Int) {
 	switch field {
 	case "type":
 		fmtEnc = append(fmtEnc, types.StrToFelt(self.Type).Big())
@@ -96,17 +148,18 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 	if err != nil {
 		return err
 	}
-	var sjd StarkJsonData
-	if err = json.Unmarshal(msg, &sjd); err != nil {
+	var msgRaw StarkJsonMessage
+	if err = json.Unmarshal(msg, &msgRaw); err != nil {
 		return err
 	}
-	sjd.Message.Did = sjd.Message.Did[:30]
-	sjd.Message.Nonce = sjd.Message.Nonce[:30]
-	td, err := caigo.NewTypedData(sjd.GetTypeDef(), sjd.PrimaryType, sjd.Domain)
+	msgRaw.Did = truncate(msgRaw.Did, 30)
+	msgRaw.Server.Did = truncate(msgRaw.Server.Did, 30)
+	msgRaw.Nonce = truncate(msgRaw.Nonce, 30)
+	td, err := caigo.NewTypedData(DefStarkJsonData.Types, DefStarkJsonData.PrimaryType, DefStarkJsonData.Domain)
 	if err != nil {
 		return err
 	}
-	hash, err := td.GetMessageHash(types.HexToBN(address), sjd.Message, caigo.Curve)
+	hash, err := td.GetMessageHash(types.HexToBN(address), &msgRaw, caigo.Curve)
 	if err != nil {
 		return err
 	}
@@ -127,7 +180,6 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 		Calldata:           append([]string{fmt.Sprintf("%d", hash), fmt.Sprintf("%d", len(sigArr))}, sigArr...),
 	}, "")
 	if err != nil {
-		fmt.Println(err.Error())
 		return err
 	}
 	if len(callResp) != 1 {
@@ -139,7 +191,15 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 	return nil
 }
 
-func (s StarkNetProcessor) VerifySig3(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error {
+func truncate(raw string, targetL int) string {
+	if len(raw) > targetL {
+		return raw[:targetL]
+	} else {
+		return raw
+	}
+}
+
+func (s StarkNetProcessor) VerifySigOld(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error {
 
 	address, err := getStarkAddrFromDID(did)
 	if err != nil {
