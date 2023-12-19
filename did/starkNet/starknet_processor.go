@@ -100,6 +100,8 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 	if err = json.Unmarshal(msg, &sjd); err != nil {
 		return err
 	}
+	sjd.Message.Did = sjd.Message.Did[:30]
+	sjd.Message.Nonce = sjd.Message.Nonce[:30]
 	td, err := caigo.NewTypedData(sjd.GetTypeDef(), sjd.PrimaryType, sjd.Domain)
 	if err != nil {
 		return err
@@ -199,7 +201,7 @@ func getStarkAddrFromDID(did string) (string, error) {
 		return "", fmt.Errorf(modules.ERR_INVALID_DID_FORMAT)
 	}
 	if arr[1] != "starko" {
-		return "", fmt.Errorf(modules.ERR_NOT_SOL_DID)
+		return "", fmt.Errorf(modules.ERR_NOT_STARK_DID)
 	}
 	return "0x" + arr[2], nil
 }
