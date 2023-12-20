@@ -173,14 +173,11 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 		return err
 	}
 	var hash *big.Int
-	if index == 0 {
-		var msgRaw StarkJsonMessage
+	if strings.Contains(string(msg), "chain_type") {
+		var msgRaw StarkJsonMessageBindAddr
 		if err = json.Unmarshal(msg, &msgRaw); err != nil {
 			return err
 		}
-		msgRaw.Did = truncate(msgRaw.Did, 30)
-		msgRaw.Server.Did = truncate(msgRaw.Server.Did, 30)
-		msgRaw.Nonce = truncate(msgRaw.Nonce, 30)
 		td, err := caigo.NewTypedData(DefStarkJsonData.Types, DefStarkJsonData.PrimaryType, DefStarkJsonData.Domain)
 		if err != nil {
 			return err
@@ -189,11 +186,14 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 		if err != nil {
 			return err
 		}
-	} else if index == 2 {
-		var msgRaw StarkJsonMessageBindAddr
+	} else {
+		var msgRaw StarkJsonMessage
 		if err = json.Unmarshal(msg, &msgRaw); err != nil {
 			return err
 		}
+		msgRaw.Did = truncate(msgRaw.Did, 30)
+		msgRaw.Server.Did = truncate(msgRaw.Server.Did, 30)
+		msgRaw.Nonce = truncate(msgRaw.Nonce, 30)
 		td, err := caigo.NewTypedData(DefStarkJsonData.Types, DefStarkJsonData.PrimaryType, DefStarkJsonData.Domain)
 		if err != nil {
 			return err
