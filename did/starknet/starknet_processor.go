@@ -113,6 +113,57 @@ var DefStarkJsonData = StarkJsonData{
 	},
 }
 
+var DefStarkJsonDataBindAddress = StarkJsonData{
+	Types: map[string]caigo.TypeDef{
+		"StarkNetDomain": caigo.TypeDef{
+			Definitions: []caigo.Definition{
+				{
+					Name: "name",
+					Type: "felt",
+				},
+				{
+					Name: "version",
+					Type: "felt",
+				},
+				{
+					Name: "chainId",
+					Type: "felt",
+				},
+			},
+		},
+		"SignData": {
+			Definitions: []caigo.Definition{
+				{
+					Name: "server_name",
+					Type: "felt",
+				},
+				{
+					Name: "timestamp",
+					Type: "felt",
+				},
+				{
+					Name: "address",
+					Type: "felt",
+				},
+				{
+					Name: "user_id",
+					Type: "felt",
+				},
+				{
+					Name: "chain_type",
+					Type: "felt",
+				},
+			},
+		},
+	},
+	PrimaryType: "SignData",
+	Domain: caigo.Domain{
+		Name:    "TaskOn",
+		Version: "1",
+		ChainId: "1",
+	},
+}
+
 type StarkJsonMessage struct {
 	Type   string `json:"type"`
 	Server struct {
