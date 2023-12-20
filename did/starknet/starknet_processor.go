@@ -229,7 +229,8 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 		if err = json.Unmarshal(msg, &msgRaw); err != nil {
 			return err
 		}
-		td, err := caigo.NewTypedData(DefStarkJsonData.Types, DefStarkJsonData.PrimaryType, DefStarkJsonData.Domain)
+		td, err := caigo.NewTypedData(DefStarkJsonDataBindAddress.Types, DefStarkJsonDataBindAddress.PrimaryType,
+			DefStarkJsonDataBindAddress.Domain)
 		if err != nil {
 			return err
 		}
