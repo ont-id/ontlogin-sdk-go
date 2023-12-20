@@ -143,25 +143,65 @@ func (self *StarkJsonMessage) FmtDefinitionEncoding(field string) (fmtEnc []*big
 	return
 }
 
+type StarkJsonMessageBindAddr struct {
+	ServerName string `json:"server_name"` // taskon
+	Timestamp  int64  `json:"timestamp"`   // timestamp in second
+	Address    string `json:"address"`
+	UserId     int64  `json:"user_id"`
+	ChainType  string `json:"chain_type"` // evm or solana
+}
+
+func (self *StarkJsonMessageBindAddr) FmtDefinitionEncoding(field string) (fmtEnc []*big.Int) {
+	switch field {
+	case "server_name":
+		fmtEnc = append(fmtEnc, types.StrToFelt(self.ServerName).Big())
+	case "timestamp":
+		fmtEnc = append(fmtEnc, types.BigToFelt(big.NewInt(self.Timestamp)).Big())
+	case "address":
+		fmtEnc = append(fmtEnc, types.StrToFelt(self.Address).Big())
+	case "user_id":
+		fmtEnc = append(fmtEnc, types.BigToFelt(big.NewInt(self.UserId)).Big())
+	case "chain_type":
+		fmtEnc = append(fmtEnc, types.StrToFelt(self.ChainType).Big())
+	}
+	return
+}
+
 func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error {
 	address, err := getStarkAddrFromDID(did)
 	if err != nil {
 		return err
 	}
-	var msgRaw StarkJsonMessage
-	if err = json.Unmarshal(msg, &msgRaw); err != nil {
-		return err
-	}
-	msgRaw.Did = truncate(msgRaw.Did, 30)
-	msgRaw.Server.Did = truncate(msgRaw.Server.Did, 30)
-	msgRaw.Nonce = truncate(msgRaw.Nonce, 30)
-	td, err := caigo.NewTypedData(DefStarkJsonData.Types, DefStarkJsonData.PrimaryType, DefStarkJsonData.Domain)
-	if err != nil {
-		return err
-	}
-	hash, err := td.GetMessageHash(types.HexToBN(address), &msgRaw, caigo.Curve)
-	if err != nil {
-		return err
+	var hash *big.Int
+	if index == 0 {
+		var msgRaw StarkJsonMessage
+		if err = json.Unmarshal(msg, &msgRaw); err != nil {
+			return err
+		}
+		msgRaw.Did = truncate(msgRaw.Did, 30)
+		msgRaw.Server.Did = truncate(msgRaw.Server.Did, 30)
+		msgRaw.Nonce = truncate(msgRaw.Nonce, 30)
+		td, err := caigo.NewTypedData(DefStarkJsonData.Types, DefStarkJsonData.PrimaryType, DefStarkJsonData.Domain)
+		if err != nil {
+			return err
+		}
+		hash, err = td.GetMessageHash(types.HexToBN(address), &msgRaw, caigo.Curve)
+		if err != nil {
+			return err
+		}
+	} else if index == 2 {
+		var msgRaw StarkJsonMessageBindAddr
+		if err = json.Unmarshal(msg, &msgRaw); err != nil {
+			return err
+		}
+		td, err := caigo.NewTypedData(DefStarkJsonData.Types, DefStarkJsonData.PrimaryType, DefStarkJsonData.Domain)
+		if err != nil {
+			return err
+		}
+		hash, err = td.GetMessageHash(types.HexToBN(address), &msgRaw, caigo.Curve)
+		if err != nil {
+			return err
+		}
 	}
 	sigArr := strings.Split(string(sig), ",")
 	gw := gateway.NewClient(gateway.WithChain("main"))

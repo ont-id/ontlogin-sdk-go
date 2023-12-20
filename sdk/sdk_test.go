@@ -24,6 +24,7 @@ func TestVerify(t *testing.T) {
 	}
 	processors := make(map[string]did.DidProcessor)
 	processors["starknet"] = starknet.NewStarkNetProcessor()
+	processors["btc"] = starknet.NewStarkNetProcessor()
 	s, _ := NewOntLoginSdk(conf, processors, func(int) string {
 		return ""
 	}, func(string) (int, error) {
@@ -31,6 +32,7 @@ func TestVerify(t *testing.T) {
 	})
 	data := `{"ver":"1.0","type":"ClientResponse","pubkey":"","did":"did:starko:17de689f54abb9f511b0bd5407af91adcac039f4a447c84c29c66b28382a94","nonce":"06af9a3f-9e48-11ee-b603-52540038ea50","proof":{"type":"ES256","verificationMethod":"did:starko:17de689f54abb9f511b0bd5407af91adcac039f4a447c84c29c66b28382a94#key-1","created":1702974268,"value":"0x313039363235303036313630363137373631323734323330373536303138353930343831363135383033383430343230373531363830393630333733333830343137353334323138353637312c31303236303036363732303737333336353836373737363033343938383533353038343730313336313233363839303030333236363139323936393936333735323535353332303932353634"}}`
 
+	data = `{"ver":"1.0","type":"ClientResponse","pubkey":"","did":"did:btco:bc1qsyaz5q8h7ak45g8vvv7gv0knmgqkydfh2lm4f8","nonce":"96cc7a08-9ee5-11ee-966c-52540038ea50","proof":{"type":"ES256","verificationMethod":"did:btco:bc1qsyaz5q8h7ak45g8vvv7gv0knmgqkydfh2lm4f8#key-1","created":1703041940,"value":"HKs4B8rkhgoIbjt5IgLZ58v52+hUA4ynELbRyNSK7E7SEuP5Memy2AJtgVQgemlWpsu68tLAdwiV0x3ZPAXArIA="}}`
 	var res modules.ClientResponse
 	err := json.Unmarshal([]byte(data), &res)
 	assert.Nil(t, err)
