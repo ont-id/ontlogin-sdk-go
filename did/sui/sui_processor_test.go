@@ -115,11 +115,18 @@ func TestSuiProcessor_VerifySig3(t *testing.T) {
 	msgbts, err := json.Marshal(msg)
 	assert.Nil(t, err)
 
-	sig := "ALrK+0bmBU5+HF278bZYakREKwAfz9w0spSbvmDmRq4zvcIYt2PAakGliz4OriCzkWFNnUVjFbuLh0vFBo5I/giRP9N4DufMKNx9coXHUlc+G8MXyiCu2XlgOr5E30sJDw=="
+	msgbts = []byte(`{"type":"ClientResponse","server":{"name":"taskon_server","url":"https://taskon.xyz","did":"did:ont:AXdmdzbyf3WZKQzRtrNQwAR91ZxMUfhXkt"},"nonce":"ce05836d-9fc5-11ee-8f53-52540038ea50","did":"did:suio:9f222bfee9374314e3144524a9faa4f4e43a820e497feb3bfe635db6b0ce37b5","created":1703138240}`)
+	sig := "AABzJNEd1ZV/3HplB0+3um/V7AKl3Z/SNb0sc3Twjh+UNCPCZxgQ4uNhZWmUGjJM3XTFdG4t5Hs/NWSPgnZhQAqY7stwbTKd+8kN6A6hmZpH2jTnR01YRAxNLluM9pRqvA=="
+	sig = "ACdxkVAZckldq2O/XSsOPzUX3uXO5/QTFgmAuhoQNrix4tvEj+6XxIVvAAMQOIiyC0ei+ezVIYiB0a20gVg3GwKY7stwbTKd+8kN6A6hmZpH2jTnR01YRAxNLluM9pRqvA=="
 	sigbts, _ := base64.StdEncoding.DecodeString(sig)
 	assert.Nil(t, err)
 	sp := NewSuiProcessor()
-	err = sp.VerifySig("did:suio:b991c63472b156206c03f5dda19c562c2caf0b741334016e23c07b1d33cfafe0", 0, msgbts, sigbts[1:len(sigbts)-32], sigbts[len(sigbts)-32:])
+	fmt.Println(hex.EncodeToString(sigbts[len(sigbts)-32:]))
+
+	msgbts, _ = base64.StdEncoding.DecodeString("eyJ0eXBlIjoiQ2xpZW50UmVzcG9uc2UiLCJzZXJ2ZXIiOnsibmFtZSI6InRhc2tvbl9zZXJ2ZXIiLCJ1cmwiOiJodHRwczovL3Rhc2tvbi54eXoiLCJkaWQiOiJkaWQ6b250OkFYZG1kemJ5ZjNXWktRelJ0ck5Rd0FSOTFaeE1VZmhYa3QifSwibm9uY2UiOiI0OTMwMjI3MS05ZmNjLTExZWUtOGY1My01MjU0MDAzOGVhNTAiLCJkaWQiOiJkaWQ6c3Vpbzo5ZjIyMmJmZWU5Mzc0MzE0ZTMxNDQ1MjRhOWZhYTRmNGU0M2E4MjBlNDk3ZmViM2JmZTYzNWRiNmIwY2UzN2I1IiwiY3JlYXRlZCI6MTcwMzE0MTAyNH0=")
+	fmt.Println(hex.EncodeToString(msgbts))
+
+	err = sp.VerifySig("did:suio:9f222bfee9374314e3144524a9faa4f4e43a820e497feb3bfe635db6b0ce37b5", 0, msgbts, sigbts[1:len(sigbts)-32], sigbts[len(sigbts)-32:])
 	assert.Nil(t, err)
 
 }
