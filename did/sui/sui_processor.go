@@ -1,6 +1,7 @@
 package sui
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"github.com/fardream/go-bcs/bcs"
@@ -31,7 +32,6 @@ func (s SuiProcessor) VerifySig(did string, index int, msg []byte, sig []byte, p
 		return err
 	}
 	tmp := []byte{0}
-
 	tmp = append(tmp, pubkeyBytes...)
 	addrBytes := blake2b.Sum256(tmp)
 	address := hex.EncodeToString(addrBytes[:])[:ADDRESS_LENGTH]
@@ -41,6 +41,12 @@ func (s SuiProcessor) VerifySig(did string, index int, msg []byte, sig []byte, p
 	}
 	pubkey := ed25519.PublicKey(pubkeyBytes)
 
+	msgBuffer := bytes.NewBuffer([]byte{})
+	msgEncode := bcs.NewEncoder(msgBuffer)
+	err = msgEncode.Encode(msg)
+	if err != nil {
+		return err
+	}
 	value := sui_types.NewIntentMessage(sui_types.Intent{
 		Scope: sui_types.IntentScope{
 			PersonalMessage: &sui_types.EmptyEnum{},
@@ -51,18 +57,17 @@ func (s SuiProcessor) VerifySig(did string, index int, msg []byte, sig []byte, p
 		AppId: sui_types.AppId{
 			Sui: &sui_types.EmptyEnum{},
 		},
-	}, sui_types.Base64Data(msg))
+	}, sui_types.Base64Data(msgBuffer.Bytes()))
+
 	message, err := bcs.Marshal(value)
 	if err != nil {
 		return err
 	}
 	hash := blake2b.Sum256(message)
-
 	f := ed25519.Verify(pubkey, hash[:], sig)
 	if !f {
 		return fmt.Errorf(modules.ERR_INVALID_SIGNATURE)
 	}
-
 	return nil
 }
 
