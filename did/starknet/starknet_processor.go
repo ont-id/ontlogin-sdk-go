@@ -4,9 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/NethermindEth/juno/core/felt"
+	"github.com/NethermindEth/starknet.go/rpc"
+	"github.com/NethermindEth/starknet.go/utils"
 	"github.com/dontpanicdao/caigo"
 	"github.com/dontpanicdao/caigo/gateway"
 	"github.com/dontpanicdao/caigo/types"
+	ethrpc "github.com/ethereum/go-ethereum/rpc"
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 	"math/big"
 	"strings"
@@ -256,28 +260,31 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 		}
 	}
 	sigArr := strings.Split(string(sig), ",")
-	gw := gateway.NewClient(gateway.WithChain("main"))
-
-	//x := types.HexToBN(address)
-	//y := caigo.Curve.GetYCoordinate(x)
-	//ok := caigo.Curve.Verify(hash, types.StrToBig(sigArr[0]), types.StrToBig(sigArr[1]), x, y)
-	//if ok {
-	//	return nil
-	//} else {
-	//	return fmt.Errorf("verify sig failed")
-	//}
-	callResp, err := gw.Call(context.Background(), types.FunctionCall{
-		ContractAddress:    types.HexToHash(address),
-		EntryPointSelector: "isValidSignature",
-		Calldata:           append([]string{fmt.Sprintf("%d", hash), fmt.Sprintf("%d", len(sigArr))}, sigArr...),
-	}, "")
+	c, err := ethrpc.DialContext(context.Background(), "https://starknet-mainnet.g.alchemy.com/v2/usp9JoVk_YNLJFnU5WiyfoWAMLK3KRg_")
+	if err != nil {
+		return err
+	}
+	clientv02 := rpc.NewProvider(c)
+	contractAddr, err := utils.HexToFelt(address)
+	if err != nil {
+		return err
+	}
+	sigArrFelt, err := utils.HexArrToFelt(sigArr)
+	if err != nil {
+		return err
+	}
+	callResp, err := clientv02.Call(context.Background(), rpc.FunctionCall{
+		ContractAddress:    contractAddr,
+		EntryPointSelector: utils.GetSelectorFromNameFelt("isValidSignature"),
+		Calldata:           append([]*felt.Felt{utils.BigIntToFelt(hash), utils.Uint64ToFelt(uint64(len(sigArr)))}, sigArrFelt...),
+	}, rpc.BlockID{Tag: "latest"})
 	if err != nil {
 		return err
 	}
 	if len(callResp) != 1 {
 		return fmt.Errorf("verify sig failed")
 	}
-	if callResp[0] != "0x1" {
+	if callResp[0].String() != "0x1" {
 		return fmt.Errorf("verify sig failed")
 	}
 	return nil
