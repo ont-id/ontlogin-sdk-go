@@ -16,10 +16,14 @@ import (
 	"strings"
 )
 
-type StarkNetProcessor struct{}
+type StarkNetProcessor struct {
+	rpc string
+}
 
-func NewStarkNetProcessor() *StarkNetProcessor {
-	return &StarkNetProcessor{}
+func NewStarkNetProcessor(rpc string) *StarkNetProcessor {
+	return &StarkNetProcessor{
+		rpc: rpc,
+	}
 }
 
 type Types struct {
@@ -260,7 +264,8 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 		}
 	}
 	sigArr := strings.Split(string(sig), ",")
-	c, err := ethrpc.DialContext(context.Background(), "https://starknet-mainnet.g.alchemy.com/v2/usp9JoVk_YNLJFnU5WiyfoWAMLK3KRg_")
+	//https://starknet-mainnet.g.alchemy.com/v2/usp9JoVk_YNLJFnU5WiyfoWAMLK3KRg_
+	c, err := ethrpc.DialContext(context.Background(), s.rpc)
 	if err != nil {
 		return err
 	}
