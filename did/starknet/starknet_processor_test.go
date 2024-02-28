@@ -25,155 +25,16 @@ func TestStarkNetProcessor_VerifySig(t *testing.T) {
 }
 
 func TestStarkNetProcessor_VerifySig2(t *testing.T) {
-	text := `{
-    "types": {
-        "StarkNetDomain": [
-            {
-                "name": "name",
-                "type": "felt"
-            },
-            {
-                "name": "version",
-                "type": "felt"
-            },
-            {
-                "name": "chainId",
-                "type": "felt"
-            }
-        ],
-        "Server": [
-            {
-                "name": "name",
-                "type": "felt"
-            },
-            {
-                "name": "url",
-                "type": "felt"
-            },
-            {
-                "name": "did",
-                "type": "felt"
-            }
-        ],
-        "SignData": [
-            {
-                "name": "type",
-                "type": "felt"
-            },
-            {
-                "name": "server",
-                "type": "Server"
-            },
-            {
-                "name": "nonce",
-                "type": "felt"
-            },
-            {
-                "name": "did",
-                "type": "felt"
-            },
-            {
-                "name": "created",
-                "type": "felt"
-            }
-        ]
-    },
-    "primaryType": "SignData",
-    "domain": {
-        "name": "TaskOn",
-        "version": "1",
-        "chainId": "1"
-    },
-    "message": {
-        "type": "ClientResponse",
-        "server": {
-            "name": "taskon_server",
-            "url": "https://taskon.xyz",
-            "did": "did:ont:AXdmdzbyf3WZKQzRtrNQwA"
-        },
-        "nonce": "3416e8f7-9987-11ee-a7df-525400",
-        "did": "did:starko:5238e1b23df86c4c0fb",
-        "created": 1702451646
-    }
-}`
-	text = `{
-    "types": {
-        "StarkNetDomain": [
-            {
-                "name": "name",
-                "type": "felt"
-            },
-            {
-                "name": "version",
-                "type": "felt"
-            },
-            {
-                "name": "chainId",
-                "type": "felt"
-            }
-        ],
-        "Server": [
-            {
-                "name": "name",
-                "type": "felt"
-            },
-            {
-                "name": "url",
-                "type": "felt"
-            },
-            {
-                "name": "did",
-                "type": "felt"
-            }
-        ],
-        "SignData": [
-            {
-                "name": "type",
-                "type": "felt"
-            },
-            {
-                "name": "server",
-                "type": "Server"
-            },
-            {
-                "name": "nonce",
-                "type": "felt"
-            },
-            {
-                "name": "did",
-                "type": "felt"
-            },
-            {
-                "name": "created",
-                "type": "felt"
-            }
-        ]
-    },
-    "primaryType": "SignData",
-    "domain": {
-        "name": "TaskOn",
-        "version": "1",
-        "chainId": "1"
-    },
-    "message": {
-        "type": "ClientResponse",
-        "server": {
-            "name": "taskon_server",
-            "url": "https://taskon.xyz",
-            "did": "did:ont:AXdmdzbyf3WZKQzRtrNQwA"
-        },
-        "nonce": "063cdd93-9e22-11ee-8266-525400",
-        "did": "did:starko:17de689f54abb9f511b",
-        "created": 1702957946
-    }
-}`
-	sp := NewStarkNetProcessor()
+	sp := NewStarkNetProcessor("https://starknet-goerli.g.alchemy.com/v2/ZDZ4w7toMJ3dKtu1IrE3To-DePJDb2h9")
 	sighex := hex.EncodeToString([]byte("2127340877477906885676061420343292598594438784744010720436562455586961918748,794084311332976788600590143198204317118376929615650553802210038039351632157"))
 	//fmt.Printf("sighex:%s", sighex)
 
 	sigbts, _ := hex.DecodeString(sighex)
 
-	err := sp.VerifySig("did:starko:0017de689f54abb9f511b0bd5407af91adcac039f4a447c84c29c66b28382a94", 0, []byte(text), sigbts, nil)
+	did := "did:starko:30fbd441960a53aafcce8659003521ef2a27fb7a56d667572ced3960f305fc4"
+	msg := []byte(`{"server_name":"taskon","timestamp":1709108838901,"address":"0x30fbd441960a53aafcce8659003521ef2a27fb7a56d667572ced3960f305fc4","user_id":520137,"chain_type":"starknet"}`)
+	sigbts = []byte("1,1006182169185013547284978185661569284231466774613931360233570540299626054360,3565811278148684097366895352819568029580452006562953151514376425859910297173")
+	err := sp.VerifySig(did, 0, msg, sigbts, nil)
 	assert.Nil(t, err)
 }
 

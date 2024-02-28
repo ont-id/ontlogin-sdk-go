@@ -289,7 +289,8 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 	if len(callResp) != 1 {
 		return fmt.Errorf("verify sig failed")
 	}
-	if callResp[0].String() != "0x1" {
+	//VALID
+	if !strings.EqualFold(callResp[0].String(), "0x56414c4944") {
 		return fmt.Errorf("verify sig failed")
 	}
 	return nil
