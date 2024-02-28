@@ -3,6 +3,7 @@ package starknet
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/NethermindEth/juno/core/felt"
 	"github.com/NethermindEth/starknet.go/rpc"
@@ -278,20 +279,51 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 	if err != nil {
 		return err
 	}
+	err = verifySigOld(clientv02, contractAddr, hash, len(sigArr), sigArrFelt)
+	if err == nil {
+		return nil
+	}
+	err = verifySigNew(clientv02, contractAddr, hash, len(sigArr), sigArrFelt)
+	if err == nil {
+		return nil
+	}
+	return err
+}
+
+func verifySigOld(clientv02 *rpc.Provider, contractAddr *felt.Felt, hash *big.Int, l int, sigArrFelt []*felt.Felt) error {
+	callResp, err := clientv02.Call(context.Background(), rpc.FunctionCall{
+		ContractAddress:    contractAddr,
+		EntryPointSelector: utils.GetSelectorFromNameFelt("isValidSignature"),
+		Calldata:           append([]*felt.Felt{utils.BigIntToFelt(hash), utils.Uint64ToFelt(uint64(l))}, sigArrFelt...),
+	}, rpc.BlockID{Tag: "latest"})
+	if err != nil {
+		return fmt.Errorf("verifySigOld failed: %s", err)
+	}
+	if len(callResp) != 1 {
+		return errors.New("verifySigOld failed")
+	}
+	//VALID
+	if !strings.EqualFold(callResp[0].String(), "0x1") {
+		return errors.New("verifySigOld failed not match")
+	}
+	return nil
+}
+
+func verifySigNew(clientv02 *rpc.Provider, contractAddr *felt.Felt, hash *big.Int, l int, sigArrFelt []*felt.Felt) error {
 	callResp, err := clientv02.Call(context.Background(), rpc.FunctionCall{
 		ContractAddress:    contractAddr,
 		EntryPointSelector: utils.GetSelectorFromNameFelt("is_valid_signature"),
-		Calldata:           append([]*felt.Felt{utils.BigIntToFelt(hash), utils.Uint64ToFelt(uint64(len(sigArr)))}, sigArrFelt...),
+		Calldata:           append([]*felt.Felt{utils.BigIntToFelt(hash), utils.Uint64ToFelt(uint64(l))}, sigArrFelt...),
 	}, rpc.BlockID{Tag: "latest"})
 	if err != nil {
-		return err
+		return fmt.Errorf("verifySigNew failed: %s", err)
 	}
 	if len(callResp) != 1 {
-		return fmt.Errorf("verify sig failed")
+		return errors.New("verifySigNew failed")
 	}
 	//VALID
 	if !strings.EqualFold(callResp[0].String(), "0x56414c4944") {
-		return fmt.Errorf("verify sig failed")
+		return errors.New("verifySigNew failed not match")
 	}
 	return nil
 }
