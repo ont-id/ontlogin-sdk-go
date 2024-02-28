@@ -11,7 +11,7 @@ import (
 )
 
 func TestStarkNetProcessor_VerifySig(t *testing.T) {
-	sp := NewStarkNetProcessor()
+	sp := NewStarkNetProcessor("")
 	sighex := hex.EncodeToString([]byte("2056925723311714060087095012823799371803452675698110219564697637847120344377,1359148151318872126803000167044754763837524857462869192310619398438650609726"))
 	fmt.Printf("sighex:%s\n", sighex)
 

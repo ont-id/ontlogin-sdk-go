@@ -280,7 +280,7 @@ func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []by
 	}
 	callResp, err := clientv02.Call(context.Background(), rpc.FunctionCall{
 		ContractAddress:    contractAddr,
-		EntryPointSelector: utils.GetSelectorFromNameFelt("isValidSignature"),
+		EntryPointSelector: utils.GetSelectorFromNameFelt("is_valid_signature"),
 		Calldata:           append([]*felt.Felt{utils.BigIntToFelt(hash), utils.Uint64ToFelt(uint64(len(sigArr)))}, sigArrFelt...),
 	}, rpc.BlockID{Tag: "latest"})
 	if err != nil {
