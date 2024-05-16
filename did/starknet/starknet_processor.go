@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
+	"strings"
+
 	"github.com/NethermindEth/juno/core/felt"
 	"github.com/NethermindEth/starknet.go/rpc"
 	"github.com/NethermindEth/starknet.go/utils"
@@ -12,9 +15,8 @@ import (
 	"github.com/dontpanicdao/caigo/gateway"
 	"github.com/dontpanicdao/caigo/types"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
+	"github.com/ontology-tech/ontlogin-sdk-go/did"
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
-	"math/big"
-	"strings"
 )
 
 type StarkNetProcessor struct {
@@ -225,6 +227,9 @@ func (self *StarkJsonMessageBindAddr) FmtDefinitionEncoding(field string) (fmtEn
 		fmtEnc = append(fmtEnc, types.StrToFelt(self.ChainType).Big())
 	}
 	return
+}
+func (s StarkNetProcessor) VerifySigEIP712(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte, data did.EIP712Msg) error {
+	panic("not implement")
 }
 
 func (s StarkNetProcessor) VerifySig(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error {

@@ -21,9 +21,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"strconv"
 	"strings"
+
+	"github.com/ethereum/go-ethereum/common/hexutil"
 
 	"github.com/ontology-tech/ontlogin-sdk-go/did"
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
@@ -117,7 +118,6 @@ func (s *OntLoginSdk) GetCredentialJson(chain, presentation string) ([]string, e
 
 	return processor.GetCredentialJsons(presentation)
 }
-
 func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error {
 
 	//1. validate res
@@ -184,6 +184,84 @@ func (s *OntLoginSdk) ValidateClientResponse(res *modules.ClientResponse) error 
 	}
 
 	//verify presentation
+	if res.VPs != nil && len(res.VPs) > 0 {
+		requiredTypes := s.conf.VCFilters[action]
+		for _, vp := range res.VPs {
+			if err = processor.VerifyPresentation(vp, requiredTypes); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// only support evm for EIP712
+func (s *OntLoginSdk) ValidateClientResponseEIP712(res *modules.ClientResponse) error {
+	// 1. validate res
+	if err := s.validateClientResponse(res); err != nil {
+		return err
+	}
+
+	userdid, index, err := getDIDKeyAndIndex(res.Proof.VerificationMethod)
+	if err != nil {
+		return err
+	}
+	if !strings.EqualFold(userdid, res.Did) {
+		return fmt.Errorf(modules.ERR_DID_NOT_MATCH)
+	}
+	chain, err := s.GetDIDChain(userdid)
+	if err != nil {
+		return err
+	}
+	if !strings.EqualFold(chain, "eth") {
+		return fmt.Errorf(modules.ERR_CHAIN_NOT_SUPPORTED)
+	}
+	action, err := s.getActionByNonce(res.Nonce)
+	if err != nil {
+		return fmt.Errorf(modules.ERR_NONCE_IS_NOT_EXIST)
+	}
+
+	v := res.Proof.Value
+	if strings.HasPrefix(res.Proof.Value, "0x") {
+		v = strings.ReplaceAll(res.Proof.Value, "0x", "")
+	}
+	sigdata, err := hex.DecodeString(v)
+	if err != nil {
+		return fmt.Errorf(modules.ERR_DECODE_SIG)
+	}
+
+	processor, ok := s.didProcessors[chain]
+	if !ok {
+		return fmt.Errorf(modules.ERR_CHAIN_NOT_SUPPORTED)
+	}
+	var pubkeybts []byte
+	if len(res.Pubkey) > 0 {
+		if strings.HasPrefix(res.Pubkey, "0x") {
+			pubkeybts, err = hexutil.Decode(res.Pubkey)
+			if err != nil {
+				return fmt.Errorf(modules.ERR_INVALID_PUBKEY)
+			}
+		} else {
+			pubkeybts, err = hex.DecodeString(res.Pubkey)
+			if err != nil {
+				return fmt.Errorf(modules.ERR_INVALID_PUBKEY)
+			}
+		}
+	}
+	eip712Data := did.EIP712Msg{
+		Type:       modules.TYPE_CLIENT_RESPONSE,
+		Did:        userdid,
+		Nonce:      res.Nonce,
+		ServerName: s.conf.ServerInfo.Name,
+		ServerURL:  s.conf.ServerInfo.Url,
+		ServerDid:  s.conf.ServerInfo.Did,
+		Created:    res.Proof.Created,
+	}
+	if err = processor.VerifySigEIP712(userdid, index, nil, sigdata, pubkeybts, eip712Data); err != nil {
+		return err
+	}
+
+	// verify presentation
 	if res.VPs != nil && len(res.VPs) > 0 {
 		requiredTypes := s.conf.VCFilters[action]
 		for _, vp := range res.VPs {

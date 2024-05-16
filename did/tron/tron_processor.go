@@ -2,16 +2,22 @@ package tron
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/fbsobreira/gotron-sdk/pkg/keystore"
+	"github.com/ontology-tech/ontlogin-sdk-go/did"
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
-	"strings"
 )
 
 type TronProcessor struct{}
 
 func NewTronProcessor() *TronProcessor {
 	return &TronProcessor{}
+}
+
+func (s TronProcessor) VerifySigEIP712(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte, data did.EIP712Msg) error {
+	panic("not implemented")
 }
 
 func (t TronProcessor) VerifySig(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error {

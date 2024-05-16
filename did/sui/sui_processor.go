@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+
 	"github.com/fardream/go-bcs/bcs"
+	"github.com/ontology-tech/ontlogin-sdk-go/did"
 	"github.com/ontology-tech/ontlogin-sdk-go/did/sui/sui_types"
 	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 	"golang.org/x/crypto/blake2b"
@@ -21,6 +23,10 @@ type SuiProcessor struct{}
 
 func NewSuiProcessor() *SuiProcessor {
 	return &SuiProcessor{}
+}
+
+func (s SuiProcessor) VerifySigEIP712(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte, data did.EIP712Msg) error {
+	panic("not implemented")
 }
 
 func (s SuiProcessor) VerifySig(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error {

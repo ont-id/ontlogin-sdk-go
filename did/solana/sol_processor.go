@@ -2,9 +2,11 @@ package solana
 
 import (
 	"fmt"
-	solana "github.com/gagliardetto/solana-go"
-	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 	"strings"
+
+	solana "github.com/gagliardetto/solana-go"
+	"github.com/ontology-tech/ontlogin-sdk-go/did"
+	"github.com/ontology-tech/ontlogin-sdk-go/modules"
 )
 
 type SolanaProcessor struct {
@@ -29,6 +31,10 @@ func (s SolanaProcessor) VerifySig(did string, index int, msg []byte, sig []byte
 	}
 
 	return nil
+}
+
+func (s SolanaProcessor) VerifySigEIP712(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte, data did.EIP712Msg) error {
+	panic("not implemented")
 }
 
 func (s SolanaProcessor) Sign(did string, index int, msg []byte) ([]byte, error) {

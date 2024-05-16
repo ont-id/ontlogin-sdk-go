@@ -19,8 +19,19 @@ package did
 
 import "github.com/ontology-tech/ontlogin-sdk-go/modules"
 
+type EIP712Msg struct {
+	Type       string `json:"type"`
+	Did        string `json:"did"`
+	Nonce      string `json:"nonce"`
+	ServerName string `json:"serverName"`
+	ServerURL  string `json:"serverUrl"`
+	ServerDid  string `json:"serverDid"`
+	Created    uint64 `json:"created"`
+}
+
 type DidProcessor interface {
 	VerifySig(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte) error
+	VerifySigEIP712(did string, index int, msg []byte, sig []byte, pubkeyBytes []byte, data EIP712Msg) error
 	Sign(did string, index int, msg []byte) ([]byte, error)
 	VerifyPresentation(presentation string, requiredTypes []*modules.VCFilter) error
 	VerifyCredential(credential string, trustedDIDs []string) error
