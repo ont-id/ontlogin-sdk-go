@@ -21,7 +21,7 @@ func TestEIP712(t *testing.T) {
 		Created:    1715831360336,
 	}
 
-	f := processor.VerifyEIP712Sig("did:etho:6A426c1e07cCBA3401197Eb1E9EC8Fc6152dA239", 1, nil, sig, nil, data)
+	f := processor.VerifySigEIP712("did:etho:6A426c1e07cCBA3401197Eb1E9EC8Fc6152dA239", 1, nil, sig, nil, data)
 	assert.Nil(t, f)
 	// hash, err := GetEIP712SignHash()
 	// assert.Nil(t, err)
