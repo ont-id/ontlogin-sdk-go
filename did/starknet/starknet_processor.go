@@ -351,12 +351,12 @@ func (s StarkNetProcessor) VerifySigOld(did string, index int, msg []byte, sig [
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("address:%s\n", address)
-	fmt.Printf("hash:%s\n", hash)
+	// fmt.Printf("address:%s\n", address)
+	// fmt.Printf("hash:%s\n", hash)
 
 	sigArr := strings.Split(string(sig), ",")
-	fmt.Printf("%v\n", sigArr)
-	fmt.Printf("calldata:%v\n", append([]string{fmt.Sprintf("%d", hash), fmt.Sprintf("%d", len(sigArr))}, sigArr...))
+	// fmt.Printf("%v\n", sigArr)
+	// fmt.Printf("calldata:%v\n", append([]string{fmt.Sprintf("%d", hash), fmt.Sprintf("%d", len(sigArr))}, sigArr...))
 
 	gw := gateway.NewClient(gateway.WithChain("main"))
 

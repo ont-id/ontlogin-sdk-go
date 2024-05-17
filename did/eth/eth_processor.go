@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 
@@ -127,7 +126,7 @@ func ETHVerifySig(from string, sig []byte, msg []byte, is712 bool) bool {
 		return false
 	}
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
-	fmt.Printf("recoveredAddr:%s, from:%s\n", recoveredAddr.Hex(), fromAddr.Hex())
+	// fmt.Printf("recoveredAddr:%s, from:%s\n", recoveredAddr.Hex(), fromAddr.Hex())
 
 	return strings.EqualFold(fromAddr.Hex(), recoveredAddr.Hex())
 }
@@ -135,46 +134,6 @@ func EthSignHash(data []byte) []byte {
 	msg := fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(data), data)
 	return crypto.Keccak256([]byte(msg))
 }
-
-// func GetEIP712SignHash(domainName string, domainVersion string, msg EIP712Msg) ([]byte, error) {
-// 	var signerData = apitypes.TypedData{
-// 		Types: apitypes.Types{
-// 			"ClientResponseMsg": {
-// 				{Name: "type", Type: "string"},
-// 				{Name: "serverName", Type: "string"},
-// 				{Name: "serverUrl", Type: "string"},
-// 				{Name: "serverDid", Type: "string"},
-// 				{Name: "nonce", Type: "string"},
-// 				{Name: "did", Type: "string"},
-// 				{Name: "created", Type: "uint256"},
-// 			},
-// 			"EIP712Domain": []apitypes.Type{
-// 				{Name: "name", Type: "string"},
-// 				{Name: "version", Type: "string"},
-// 			},
-// 		},
-// 		PrimaryType: "ClientResponseMsg",
-// 		Domain: apitypes.TypedDataDomain{
-// 			Name:    "ontlogin",
-// 			Version: "v1.0.0",
-// 		},
-// 		Message: apitypes.TypedDataMessage{
-// 			"type":       "ClientResponse",
-// 			"serverName": "orange_server",
-// 			"serverUrl":  "https://www.orangeprotocol.io/",
-// 			"serverDid":  "did:ont:AXdmdzbyf3WZKQzRtrNQwAR91ZxMUfhXkt",
-// 			"nonce":      "12313123131124",
-// 			"did":        "did:etho:6A426c1e07cCBA3401197Eb1E9EC8Fc6152dA239",
-// 			"created":    math.NewHexOrDecimal256(int64(1715831360336)),
-// 		},
-// 	}
-
-// 	hash, rawStr, err := apitypes.TypedDataAndHash(signerData)
-// 	fmt.Printf("rawStr: %s\n", rawStr)
-// 	fmt.Printf("hash: %s\n", hexutil.Encode(hash))
-// 	return hash, err
-// }
-
 func GetEIP712SignHash(domainName string, domainVersion string, msg did.EIP712Msg) ([]byte, error) {
 	var signerData = apitypes.TypedData{
 		Types: apitypes.Types{
@@ -204,12 +163,12 @@ func GetEIP712SignHash(domainName string, domainVersion string, msg did.EIP712Ms
 			"serverDid":  msg.ServerDid,
 			"nonce":      msg.Nonce,
 			"did":        msg.Did,
-			"created":    math.NewHexOrDecimal256(int64(1715831360336)),
+			"created":    math.NewHexOrDecimal256(int64(msg.Created)),
 		},
 	}
 
-	hash, rawStr, err := apitypes.TypedDataAndHash(signerData)
-	fmt.Printf("rawStr: %s\n", rawStr)
-	fmt.Printf("hash: %s\n", hexutil.Encode(hash))
+	hash, _, err := apitypes.TypedDataAndHash(signerData)
+	// fmt.Printf("rawStr: %s\n", rawStr)
+	// fmt.Printf("hash: %s\n", hexutil.Encode(hash))
 	return hash, err
 }
