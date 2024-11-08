@@ -37,8 +37,8 @@ import (
 ///
 
 var (
-	EIP712_DOMAIN  = "ontlogin"
-	EIP712_VERSION = "v1.0.0"
+	EIP712_DOMAIN  = "login"
+	EIP712_VERSION = "v1.0.1"
 )
 
 type EthProcessor struct {
